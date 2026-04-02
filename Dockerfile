@@ -12,11 +12,17 @@ WORKDIR /var/www/html
 # Copy all files
 COPY . /var/www/html/
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+# Create uploads directory if it doesn't exist
+RUN mkdir -p /var/www/html/uploads \
+    && mkdir -p /var/www/html/uploads/papers \
+    && mkdir -p /var/www/html/uploads/avatars \
+    && mkdir -p /var/www/html/uploads/temp \
+    && mkdir -p /var/www/html/database-backup
 
-# Configure Apache to use .htaccess
-RUN sed -i '/<Directory \/var\/www\/html>/s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+# Set proper permissions (only on directories that exist)
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/uploads \
+    && chmod -R 777 /var/www/html/database-backup
 
 EXPOSE 80
