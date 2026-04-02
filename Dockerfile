@@ -1,8 +1,4 @@
-FROM php:8.2-apache
-
-# Install PostgreSQL driver and required extensions
-RUN apt-get update && apt-get install -y libpq-dev && \
-    docker-php-ext-install pdo_pgsql pgsql
+FROM render/php:8.2-apache
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -18,4 +14,4 @@ RUN chown -R www-data:www-data /var/www/html && \
 RUN mkdir -p /var/www/html/uploads /var/www/html/database-backup && \
     chmod 777 /var/www/html/uploads /var/www/html/database-backup
 
-EXPOSE 80
+EXPOSE 10000
