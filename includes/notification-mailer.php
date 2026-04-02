@@ -1,6 +1,90 @@
 <?php
 // includes/notification-mailer.php
-require_once __DIR__ . '/../config/mail.php';
+
+// Load PHPMailer if Composer autoload exists
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+/**
+ * Send email using SMTP (Gmail or other SMTP servers)
+ */
+function sendSMTPEmail($to_email, $to_name, $subject, $html_message) {
+    // ===== CONFIGURE YOUR SMTP SETTINGS HERE =====
+    // For Gmail:
+    $smtp_host = 'smtp.gmail.com';
+    $smtp_port = 587;
+    $smtp_username = 'kldcapstonetracker@gmail.com'; 
+    $smtp_password = 'wfkp dngl apnk pduf';      
+    $smtp_encryption = PHPMailer::ENCRYPTION_STARTTLS;
+    $from_email = 'noreply@kldcapstone.com';
+    $from_name = 'KLD Capstone Tracker';
+    // ===========================================
+    
+    $mail = new PHPMailer(true);
+    
+    try {
+        // Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_OFF;  // Set to SMTP::DEBUG_SERVER for testing
+        $mail->isSMTP();
+        $mail->Host       = $smtp_host;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $smtp_username;
+        $mail->Password   = $smtp_password;
+        $mail->SMTPSecure = $smtp_encryption;
+        $mail->Port       = $smtp_port;
+        
+        // Recipients
+        $mail->setFrom($from_email, $from_name);
+        $mail->addAddress($to_email, $to_name);
+        
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $html_message;
+        $mail->AltBody = strip_tags($html_message);
+        
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+/**
+ * Alternative: Send using your existing config/mail.php if available
+ */
+function sendEmail($to_email, $to_name, $subject, $html_message) {
+    // Try to use existing mail config if it exists
+    if (file_exists(__DIR__ . '/../config/mail.php')) {
+        require_once __DIR__ . '/../config/mail.php';
+        
+        if (class_exists('Mailer')) {
+            try {
+                $mailer = new Mailer();
+                
+                // Try common method names
+                if (method_exists($mailer, 'sendCustomEmail')) {
+                    return $mailer->sendCustomEmail($to_email, $to_name, $subject, $html_message);
+                } elseif (method_exists($mailer, 'send')) {
+                    return $mailer->send($to_email, $to_name, $subject, $html_message);
+                } elseif (method_exists($mailer, 'sendEmail')) {
+                    return $mailer->sendEmail($to_email, $to_name, $subject, $html_message);
+                }
+            } catch (Exception $e) {
+                error_log("Mailer error: " . $e->getMessage());
+            }
+        }
+    }
+    
+    // Fallback to SMTP
+    return sendSMTPEmail($to_email, $to_name, $subject, $html_message);
+}
 
 /**
  * Send email notification for capstone status changes
@@ -69,86 +153,30 @@ function sendCapstoneNotification($to_email, $to_name, $title, $status, $remarks
     }
     
     // Get base URL from server
-    $base_url = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $base_url = isset($_SERVER['HTTP_HOST']) ? $protocol . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
     
     // Build HTML email
     $message = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-            .container { max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            .header { background: #2D5A27; color: white; padding: 30px 20px; text-align: center; }
-            .header h2 { margin: 0; font-size: 24px; }
-            .content { background: white; padding: 30px; }
-            .status-badge { 
-                display: inline-block; 
-                padding: 8px 20px; 
-                border-radius: 30px; 
-                font-weight: 600;
-                background: #e9f2e7;
-                color: #2D5A27;
-                margin: 15px 0;
-                font-size: 14px;
-            }
-            .remarks-box {
-                background: #f8fbf8;
-                border-left: 4px solid #2D5A27;
-                padding: 15px;
-                margin: 20px 0;
-                border-radius: 8px;
-            }
-            .button {
-                display: inline-block;
-                padding: 14px 30px;
-                background: #2D5A27;
-                color: white;
-                text-decoration: none;
-                border-radius: 40px;
-                font-weight: 600;
-                margin: 20px 0 10px;
-            }
-            .button:hover {
-                background: #1e3f1a;
-            }
-            .footer { 
-                text-align: center; 
-                padding: 25px; 
-                background: #f0f0f0;
-                color: #666;
-                font-size: 13px;
-                border-top: 1px solid #ddd;
-            }
-            .footer a { color: #2D5A27; text-decoration: none; }
-            @media (max-width: 600px) {
-                .container { margin: 10px; }
-                .content { padding: 20px; }
-                .button { display: block; text-align: center; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h2>$app_name</h2>
+    <div style='font-family: \"Segoe UI\", Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
+            <div style='background: #2D5A27; color: white; padding: 30px 20px; text-align: center;'>
+                <h2 style='margin: 0; font-size: 24px;'>$app_name</h2>
                 <p style='margin: 5px 0 0; opacity: 0.9;'>Capstone Title Status Update</p>
             </div>
-            <div class='content'>
-                $greeting
+            <div style='background: white; padding: 30px;'>
+                <h3>$greeting</h3>
                 
                 $message_body
                 
-                <div class='status-badge'>
+                <div style='display: inline-block; padding: 8px 20px; border-radius: 30px; font-weight: 600; background: #e9f2e7; color: #2D5A27; margin: 15px 0; font-size: 14px;'>
                     Current Status: $status_display
                 </div>
                 
-                " . ($remarks ? "<div class='remarks-box'><strong>Remarks:</strong><br>$remarks</div>" : "") . "
+                " . ($remarks ? "<div style='background: #f8fbf8; border-left: 4px solid #2D5A27; padding: 15px; margin: 20px 0; border-radius: 8px;'><strong>Remarks:</strong><br>$remarks</div>" : "") . "
                 
                 <p style='margin-top: 25px;'>
-                    <a href='{$base_url}/titles/browse.php' class='button'>
+                    <a href='{$base_url}/titles/browse.php' style='display: inline-block; padding: 14px 30px; background: #2D5A27; color: white; text-decoration: none; border-radius: 40px; font-weight: 600;'>
                         View in System
                     </a>
                 </p>
@@ -157,25 +185,16 @@ function sendCapstoneNotification($to_email, $to_name, $title, $status, $remarks
                     Thank you for using KLD Capstone Tracker.
                 </p>
             </div>
-            <div class='footer'>
+            <div style='text-align: center; padding: 25px; background: #f0f0f0; color: #666; font-size: 13px; border-top: 1px solid #ddd;'>
                 <p>© " . date('Y') . " KLD Innovatech. All rights reserved.</p>
                 <p>This is an automated message, please do not reply.</p>
             </div>
         </div>
-    </body>
-    </html>
+    </div>
     ";
     
-    // Use your existing Mailer class
-    $mailer = new Mailer();
-    
     // Send email
-    try {
-        return $mailer->sendCustomEmail($to_email, $to_name, $subject, $message);
-    } catch (Exception $e) {
-        error_log("Notification mail error: " . $e->getMessage());
-        return false;
-    }
+    return sendEmail($to_email, $to_name, $subject, $message);
 }
 
 /**
@@ -197,53 +216,22 @@ function sendPaperUploadNotification($to_email, $to_name, $student_name, $title,
     $title = htmlspecialchars($title);
     $to_name = htmlspecialchars($to_name);
     
-    $base_url = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $base_url = isset($_SERVER['HTTP_HOST']) ? $protocol . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
     $view_url = $title_id ? "{$base_url}/titles/view.php?id={$title_id}" : "{$base_url}/titles/browse.php";
     
     $message = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; }
-            .header { background: #2D5A27; color: white; padding: 30px 20px; text-align: center; }
-            .content { background: white; padding: 30px; }
-            .paper-info {
-                background: #e9f2e7;
-                padding: 20px;
-                border-radius: 12px;
-                margin: 20px 0;
-            }
-            .button {
-                display: inline-block;
-                padding: 14px 30px;
-                background: #2D5A27;
-                color: white;
-                text-decoration: none;
-                border-radius: 40px;
-                font-weight: 600;
-                margin: 20px 0;
-            }
-            .footer { text-align: center; padding: 25px; background: #f0f0f0; color: #666; }
-            @media (max-width: 600px) {
-                .button { display: block; text-align: center; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h2>$app_name</h2>
+    <div style='font-family: \"Segoe UI\", Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden;'>
+            <div style='background: #2D5A27; color: white; padding: 30px 20px; text-align: center;'>
+                <h2 style='margin: 0;'>$app_name</h2>
             </div>
-            <div class='content'>
+            <div style='background: white; padding: 30px;'>
                 <h3>Hello $to_name,</h3>
                 
                 <p>Student <strong>$student_name</strong> has uploaded a new paper for your review.</p>
                 
-                <div class='paper-info'>
+                <div style='background: #e9f2e7; padding: 20px; border-radius: 12px; margin: 20px 0;'>
                     <p><strong>Title:</strong> $title</p>
                     <p><strong>Paper Type:</strong> $paper_type_display</p>
                     <p><strong>Uploaded by:</strong> $student_name</p>
@@ -252,28 +240,21 @@ function sendPaperUploadNotification($to_email, $to_name, $student_name, $title,
                 <p>Please log in to the system to review the uploaded paper.</p>
                 
                 <p>
-                    <a href='{$view_url}' class='button'>
+                    <a href='{$view_url}' style='display: inline-block; padding: 14px 30px; background: #2D5A27; color: white; text-decoration: none; border-radius: 40px; font-weight: 600;'>
                         Review Paper
                     </a>
                 </p>
                 
                 <p>Thank you for your continued support.</p>
             </div>
-            <div class='footer'>
+            <div style='text-align: center; padding: 25px; background: #f0f0f0; color: #666;'>
                 <p>© " . date('Y') . " KLD Innovatech</p>
             </div>
         </div>
-    </body>
-    </html>
+    </div>
     ";
     
-    $mailer = new Mailer();
-    try {
-        return $mailer->sendCustomEmail($to_email, $to_name, $subject, $message);
-    } catch (Exception $e) {
-        error_log("Paper upload notification error: " . $e->getMessage());
-        return false;
-    }
+    return sendEmail($to_email, $to_name, $subject, $message);
 }
 
 /**
@@ -288,56 +269,26 @@ function sendAdviserRequestNotification($to_email, $to_name, $student_name, $tit
     }
     
     $subject = "New Adviser Request";
+    $app_name = "KLD Capstone Tracker";
     $student_name = htmlspecialchars($student_name);
     $title = htmlspecialchars($title);
     $to_name = htmlspecialchars($to_name);
     
-    $base_url = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $base_url = isset($_SERVER['HTTP_HOST']) ? $protocol . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
     
     $message = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; }
-            .header { background: #2D5A27; color: white; padding: 30px 20px; text-align: center; }
-            .content { background: white; padding: 30px; }
-            .request-box {
-                background: #e9f2e7;
-                padding: 20px;
-                border-radius: 12px;
-                margin: 20px 0;
-            }
-            .button {
-                display: inline-block;
-                padding: 14px 30px;
-                background: #2D5A27;
-                color: white;
-                text-decoration: none;
-                border-radius: 40px;
-                font-weight: 600;
-                margin: 20px 0;
-            }
-            .footer { text-align: center; padding: 25px; background: #f0f0f0; color: #666; }
-            @media (max-width: 600px) {
-                .button { display: block; text-align: center; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h2>KLD Capstone Tracker</h2>
+    <div style='font-family: \"Segoe UI\", Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden;'>
+            <div style='background: #2D5A27; color: white; padding: 30px 20px; text-align: center;'>
+                <h2 style='margin: 0;'>$app_name</h2>
             </div>
-            <div class='content'>
+            <div style='background: white; padding: 30px;'>
                 <h3>Hello $to_name,</h3>
                 
                 <p>Student <strong>$student_name</strong> has requested you to be their adviser for the following capstone title:</p>
                 
-                <div class='request-box'>
+                <div style='background: #e9f2e7; padding: 20px; border-radius: 12px; margin: 20px 0;'>
                     <p><strong>Title:</strong> $title</p>
                     <p><strong>Student:</strong> $student_name</p>
                 </div>
@@ -345,28 +296,21 @@ function sendAdviserRequestNotification($to_email, $to_name, $student_name, $tit
                 <p>Please log in to the system to respond to this request.</p>
                 
                 <p>
-                    <a href='{$base_url}/adviser/requests.php' class='button'>
+                    <a href='{$base_url}/adviser/requests.php' style='display: inline-block; padding: 14px 30px; background: #2D5A27; color: white; text-decoration: none; border-radius: 40px; font-weight: 600;'>
                         View Request
                     </a>
                 </p>
                 
                 <p>Thank you.</p>
             </div>
-            <div class='footer'>
+            <div style='text-align: center; padding: 25px; background: #f0f0f0; color: #666;'>
                 <p>© " . date('Y') . " KLD Innovatech</p>
             </div>
         </div>
-    </body>
-    </html>
+    </div>
     ";
     
-    $mailer = new Mailer();
-    try {
-        return $mailer->sendCustomEmail($to_email, $to_name, $subject, $message);
-    } catch (Exception $e) {
-        error_log("Adviser request notification error: " . $e->getMessage());
-        return false;
-    }
+    return sendEmail($to_email, $to_name, $subject, $message);
 }
 
 /**
@@ -405,115 +349,36 @@ function sendDeadlineNotification($to_email, $to_name, $deadline_title, $deadlin
     $created_by = htmlspecialchars($created_by);
     $to_name = htmlspecialchars($to_name);
     
-    $base_url = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $base_url = isset($_SERVER['HTTP_HOST']) ? $protocol . $_SERVER['HTTP_HOST'] . '/kld-capstone' : 'http://localhost:8080/kld-capstone';
+    
+    $urgent_color = ($days_remaining <= 3 && $days_remaining >= 0) ? '#dc3545' : '#2D5A27';
     
     $message = "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-            .container { max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            .header { background: #2D5A27; color: white; padding: 30px 20px; text-align: center; }
-            .header h2 { margin: 0; font-size: 24px; }
-            .content { background: white; padding: 30px; }
-            .deadline-card {
-                background: linear-gradient(135deg, #f8fbf8 0%, #e9f2e7 100%);
-                border-left: 4px solid #2D5A27;
-                padding: 20px;
-                margin: 20px 0;
-                border-radius: 12px;
-            }
-            .deadline-title {
-                font-size: 20px;
-                font-weight: 600;
-                color: #2D5A27;
-                margin: 0 0 10px 0;
-            }
-            .deadline-datetime {
-                background: #2D5A27;
-                color: white;
-                padding: 12px 20px;
-                border-radius: 30px;
-                display: inline-block;
-                margin: 10px 0;
-                font-weight: 500;
-            }
-            .countdown-badge {
-                display: inline-block;
-                padding: 8px 16px;
-                background: " . ($days_remaining <= 3 && $days_remaining >= 0 ? '#dc3545' : '#2D5A27') . ";
-                color: white;
-                border-radius: 30px;
-                font-size: 14px;
-                font-weight: 600;
-                margin: 10px 0;
-            }
-            .description-box {
-                background: #f5f5f5;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 15px 0;
-                border: 1px solid #e0e0e0;
-            }
-            .button {
-                display: inline-block;
-                padding: 14px 30px;
-                background: #2D5A27;
-                color: white;
-                text-decoration: none;
-                border-radius: 40px;
-                font-weight: 600;
-                margin: 20px 0 10px;
-                transition: background 0.3s;
-            }
-            .button:hover {
-                background: #1e3f1a;
-            }
-            .footer { 
-                text-align: center; 
-                padding: 25px; 
-                background: #f0f0f0;
-                color: #666;
-                font-size: 13px;
-                border-top: 1px solid #ddd;
-            }
-            .footer a { color: #2D5A27; text-decoration: none; }
-            .urgent { color: #dc3545; font-weight: bold; }
-            @media (max-width: 600px) {
-                .container { margin: 10px; }
-                .content { padding: 20px; }
-                .button { display: block; text-align: center; }
-                .deadline-datetime, .countdown-badge { display: block; text-align: center; }
-            }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h2>$app_name</h2>
+    <div style='font-family: \"Segoe UI\", Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;'>
+        <div style='max-width: 600px; margin: 20px auto; background: #f9f9f9; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
+            <div style='background: #2D5A27; color: white; padding: 30px 20px; text-align: center;'>
+                <h2 style='margin: 0; font-size: 24px;'>$app_name</h2>
                 <p style='margin: 5px 0 0; opacity: 0.9;'>📅 Deadline Notification</p>
             </div>
-            <div class='content'>
+            <div style='background: white; padding: 30px;'>
                 <h3>Hello $to_name,</h3>
                 
                 <p>A new deadline has been created by <strong>$created_by</strong> that requires your attention.</p>
                 
-                <div class='deadline-card'>
-                    <div class='deadline-title'>$deadline_title</div>
+                <div style='background: linear-gradient(135deg, #f8fbf8 0%, #e9f2e7 100%); border-left: 4px solid #2D5A27; padding: 20px; margin: 20px 0; border-radius: 12px;'>
+                    <div style='font-size: 20px; font-weight: 600; color: #2D5A27; margin: 0 0 10px 0;'>$deadline_title</div>
                     
-                    <div class='deadline-datetime'>
+                    <div style='background: #2D5A27; color: white; padding: 12px 20px; border-radius: 30px; display: inline-block; margin: 10px 0; font-weight: 500;'>
                         📅 $formatted_date at $formatted_time
                     </div>
                     
-                    <div class='countdown-badge'>
+                    <div style='display: inline-block; padding: 8px 16px; background: $urgent_color; color: white; border-radius: 30px; font-size: 14px; font-weight: 600; margin: 10px 0;'>
                         ⏰ $time_message
                     </div>
                     
                     " . (!empty($description) ? "
-                    <div class='description-box'>
+                    <div style='background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e0e0e0;'>
                         <strong>Description:</strong><br>
                         " . nl2br($description) . "
                     </div>
@@ -521,11 +386,11 @@ function sendDeadlineNotification($to_email, $to_name, $deadline_title, $deadlin
                 </div>
                 
                 " . ($days_remaining <= 3 && $days_remaining >= 0 ? "
-                <p class='urgent'>⚠️ This deadline is approaching soon! Please prioritize this task.</p>
+                <p style='color: #dc3545; font-weight: bold;'>⚠️ This deadline is approaching soon! Please prioritize this task.</p>
                 " : "") . "
                 
                 <p>
-                    <a href='{$base_url}/titles/deadlines.php' class='button'>
+                    <a href='{$base_url}/titles/deadlines.php' style='display: inline-block; padding: 14px 30px; background: #2D5A27; color: white; text-decoration: none; border-radius: 40px; font-weight: 600; margin: 20px 0 10px;'>
                         View All Deadlines
                     </a>
                 </p>
@@ -543,25 +408,13 @@ function sendDeadlineNotification($to_email, $to_name, $deadline_title, $deadlin
                     • Prepare your requirements in advance
                 </p>
             </div>
-            <div class='footer'>
+            <div style='text-align: center; padding: 25px; background: #f0f0f0; color: #666; font-size: 13px; border-top: 1px solid #ddd;'>
                 <p>© " . date('Y') . " KLD Innovatech. All rights reserved.</p>
                 <p>This is an automated notification from the KLD Capstone Tracker System.</p>
-                <p>
-                    <a href='{$base_url}/privacy.php'>Privacy Policy</a> |
-                    <a href='{$base_url}/contact.php'>Contact Support</a>
-                </p>
             </div>
         </div>
-    </body>
-    </html>
+    </div>
     ";
     
-    $mailer = new Mailer();
-    try {
-        return $mailer->sendCustomEmail($to_email, $to_name, $subject, $message);
-    } catch (Exception $e) {
-        error_log("Deadline notification error: " . $e->getMessage());
-        return false;
-    }
+    return sendEmail($to_email, $to_name, $subject, $message);
 }
-?>

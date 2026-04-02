@@ -1,7 +1,8 @@
 FROM php:8.2-apache
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+# Install PostgreSQL driver and other extensions
+RUN apt-get update && apt-get install -y libpq-dev && \
+    docker-php-ext-install pdo_pgsql pgsql pdo_mysql mysqli
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -9,14 +10,12 @@ RUN a2enmod rewrite
 # Copy all files
 COPY . /var/www/html/
 
-# Set ownership
-RUN chown -R www-data:www-data /var/www/html
+# Set ownership and permissions
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
-# Set permissions
-RUN chmod -R 755 /var/www/html
-
-# Create uploads directory and set permissions
-RUN mkdir -p /var/www/html/uploads /var/www/html/uploads/papers /var/www/html/uploads/avatars /var/www/html/uploads/temp /var/www/html/database-backup && \
-    chmod -R 777 /var/www/html/uploads /var/www/html/database-backup
+# Create uploads directory
+RUN mkdir -p /var/www/html/uploads /var/www/html/database-backup && \
+    chmod 777 /var/www/html/uploads /var/www/html/database-backup
 
 EXPOSE 80
