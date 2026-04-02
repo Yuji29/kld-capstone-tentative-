@@ -1,17 +1,23 @@
-FROM render/php:8.2-apache
+FROM ubuntu:22.04
 
-# Enable Apache mod_rewrite
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    php8.2 \
+    php8.2-pgsql \
+    php8.2-pdo \
+    php8.2-pdo-pgsql \
+    libapache2-mod-php8.2 \
+    && apt-get clean
+
 RUN a2enmod rewrite
 
-# Copy all files
 COPY . /var/www/html/
 
-# Set ownership and permissions
 RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
-
-# Create uploads directory
-RUN mkdir -p /var/www/html/uploads /var/www/html/database-backup && \
+    chmod -R 755 /var/www/html && \
+    mkdir -p /var/www/html/uploads /var/www/html/database-backup && \
     chmod 777 /var/www/html/uploads /var/www/html/database-backup
 
-EXPOSE 10000
+EXPOSE 80
+
+CMD ["apache2ctl", "-D", "FOREGROUND"]
