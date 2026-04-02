@@ -1,38 +1,34 @@
 <?php
-// config/database.php - For PostgreSQL on Render
-
 class Database {
-    private $conn;
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
+    public $conn;
+
+    public function __construct() {
+        // Use environment variables from Docker, with fallbacks for local development
+        $this->host = getenv('DB_HOST') ?: 'localhost';
+        $this->db_name = getenv('DB_NAME') ?: 'kld_capstone_tracker';
+        $this->username = getenv('DB_USER') ?: 'root';
+        $this->password = getenv('DB_PASSWORD') ?: '';
+    }
 
     public function getConnection() {
         $this->conn = null;
-        
-        // Try different ways to get the database URL
-        $database_url = getenv('DATABASE_URL');
-        
-        // If not found, try Render's specific variable
-        if (!$database_url) {
-            $database_url = getenv('RENDER_DATABASE_URL');
+        try {
+            $this->conn = new PDO(
+                "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8mb4", 
+                $this->username, 
+                $this->password
+            );
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            // Log error instead of displaying it
+            error_log("Database Connection Error: " . $e->getMessage());
+            die("Database connection failed. Please check your configuration.");
         }
-        
-        // For debugging - remove after it works
-        error_log("DATABASE_URL exists: " . ($database_url ? "YES" : "NO"));
-        
-        if ($database_url) {
-            try {
-                $this->conn = new PDO($database_url);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-                error_log("Database connected successfully!");
-            } catch(PDOException $e) {
-                error_log("Connection error: " . $e->getMessage());
-                die("Database connection failed: " . $e->getMessage());
-            }
-        } else {
-            error_log("DATABASE_URL environment variable not set!");
-            die("Database configuration error. Please check logs.");
-        }
-        
         return $this->conn;
     }
 }
