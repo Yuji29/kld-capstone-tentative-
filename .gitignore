@@ -210,3 +210,8 @@ Importants.txt  # If this contains sensitive info
 # -------------------------------
 mailer.log
 email_logs/
+
+# -------------------------------
+# Personal Notes
+# -------------------------------
+Importants.txt
