@@ -3,82 +3,59 @@
 
 // Get the requested path
 $request_uri = $_SERVER['REQUEST_URI'];
-$script_name = $_SERVER['SCRIPT_NAME'];
+$path = parse_url($request_uri, PHP_URL_PATH);
 
-// Remove query string if present
-if (strpos($request_uri, '?') !== false) {
-    $request_uri = substr($request_uri, 0, strpos($request_uri, '?'));
-}
+// Remove leading slash
+$path = ltrim($path, '/');
 
-// Route to the appropriate file
-if ($request_uri == '/' || $request_uri == '/index.php') {
+// If empty, serve index.php
+if (empty($path) || $path == '') {
     include __DIR__ . '/../index.php';
+    exit;
 }
-elseif (preg_match('/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/', $request_uri)) {
-    // Serve static files
-    $file = __DIR__ . '/..' . $request_uri;
-    if (file_exists($file)) {
-        $mime_types = [
-            'css' => 'text/css',
-            'js' => 'application/javascript',
-            'png' => 'image/png',
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'ico' => 'image/x-icon',
-            'svg' => 'image/svg+xml'
-        ];
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-        if (isset($mime_types[$ext])) {
-            header('Content-Type: ' . $mime_types[$ext]);
-        }
-        readfile($file);
+
+// Check if file exists in root directory
+$root_file = __DIR__ . '/../' . $path;
+if (file_exists($root_file) && !is_dir($root_file)) {
+    $ext = pathinfo($root_file, PATHINFO_EXTENSION);
+    
+    // Serve PHP files directly
+    if ($ext == 'php') {
+        include $root_file;
+        exit;
+    }
+    
+    // Serve static files with correct mime types
+    $mime_types = [
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'ico' => 'image/x-icon',
+        'svg' => 'image/svg+xml',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2'
+    ];
+    
+    if (isset($mime_types[$ext])) {
+        header('Content-Type: ' . $mime_types[$ext]);
+    }
+    readfile($root_file);
+    exit;
+}
+
+// Check subdirectories
+$subdirs = ['admin', 'adviser', 'auth', 'titles'];
+foreach ($subdirs as $subdir) {
+    $sub_file = __DIR__ . '/../' . $subdir . '/' . basename($path);
+    if (file_exists($sub_file) && !is_dir($sub_file)) {
+        include $sub_file;
         exit;
     }
 }
-elseif (strpos($request_uri, '/admin/') === 0) {
-    $file = __DIR__ . '/../admin/' . basename($request_uri);
-    if (file_exists($file)) {
-        include $file;
-    } else {
-        http_response_code(404);
-        echo "Page not found";
-    }
-}
-elseif (strpos($request_uri, '/adviser/') === 0) {
-    $file = __DIR__ . '/../adviser/' . basename($request_uri);
-    if (file_exists($file)) {
-        include $file;
-    } else {
-        http_response_code(404);
-        echo "Page not found";
-    }
-}
-elseif (strpos($request_uri, '/auth/') === 0) {
-    $file = __DIR__ . '/../auth/' . basename($request_uri);
-    if (file_exists($file)) {
-        include $file;
-    } else {
-        http_response_code(404);
-        echo "Page not found";
-    }
-}
-elseif (strpos($request_uri, '/titles/') === 0) {
-    $file = __DIR__ . '/../titles/' . basename($request_uri);
-    if (file_exists($file)) {
-        include $file;
-    } else {
-        http_response_code(404);
-        echo "Page not found";
-    }
-}
-else {
-    // Try to serve as PHP file
-    $file = __DIR__ . '/..' . $request_uri . '.php';
-    if (file_exists($file)) {
-        include $file;
-    } else {
-        include __DIR__ . '/../index.php';
-    }
-}
+
+// Fallback to index.php
+include __DIR__ . '/../index.php';
 ?>
