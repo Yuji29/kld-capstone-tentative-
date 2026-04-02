@@ -425,137 +425,137 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
         </div>
 
-        <!-- Batch Delete Form -->
-        <form method="POST" id="batchDeleteForm">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-            <input type="hidden" name="batch_delete" value="1">
-
-            <!-- Titles Table -->
-<div class="title-card">
-    <div class="card-header">
-        <h2>
-            <span class="material-symbols-outlined">list</span>
-            All Titles
-        </h2>
-        <span class="item-count"><?php echo $total_results; ?> titles</span>
-    </div>
-    
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th class="checkbox-cell" style="width: 40px;">
-                        <input type="checkbox" id="tableSelectAll" onclick="toggleSelectAll(this)">
-                    </th>
-                    <th style="min-width: 250px;">Title & Details</th>
-                    <th style="width: 120px;">Category</th>
-                    <th style="width: 180px;">Student</th>
-                    <th style="width: 180px;">Adviser</th>
-                    <th style="width: 130px;">Status</th>
-                    <th style="width: 70px; text-align: center;">Papers</th>
-                    <th style="width: 110px;">Created</th>
-                    <th style="width: 70px; text-align: center;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(empty($titles)): ?>
-                    <tr>
-                        <td colspan="9" class="empty-state">
-                            <span class="material-symbols-outlined">search_off</span>
-                            <p>No titles found</p>
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach($titles as $title): ?>
-                    <tr>
-                        <td class="checkbox-cell" style="text-align: center;">
-                            <input type="checkbox" 
-                                   name="selected_titles[]" 
-                                   value="<?php echo $title['id']; ?>" 
-                                   class="title-select" 
-                                   onchange="updateBatchBar()">
-                        </td>
-                        <td>
-                            <div class="title-info">
-                                <h4>
-                                    <a href="../titles/view.php?id=<?php echo $title['id']; ?>" target="_blank">
-                                        <?php echo htmlspecialchars(substr($title['title'], 0, 60)) . (strlen($title['title']) > 60 ? '...' : ''); ?>
-                                    </a>
-                                </h4>
-                                <div class="title-meta">
-                                    <span>
-                                        <span class="material-symbols-outlined">description</span> 
-                                        <?php echo $title['paper_count']; ?> papers
-                                    </span>
-                                    <span>
-                                        <span class="material-symbols-outlined">comment</span> 
-                                        <?php echo $title['comment_count']; ?> comments
-                                    </span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <?php if($title['category_name']): ?>
-                                <span class="category-badge" style="background: <?php echo htmlspecialchars($title['category_color'] ?? '#2D5A27'); ?>20; color: <?php echo htmlspecialchars($title['category_color'] ?? '#2D5A27'); ?>;">
-                                    <?php echo htmlspecialchars($title['category_name']); ?>
-                                </span>
+        <!-- Titles Table -->
+        <div class="title-card">
+            <div class="card-header">
+                <h2>
+                    <span class="material-symbols-outlined">list</span>
+                    All Titles
+                </h2>
+                <span class="item-count"><?php echo $total_results; ?> titles</span>
+            </div>
+            
+            <div class="table-wrapper">
+                <form method="POST" id="batchDeleteForm" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="batch_delete" value="1">
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell" style="width: 40px;">
+                                    <input type="checkbox" id="tableSelectAll" onclick="toggleSelectAll(this)">
+                                </th>
+                                <th style="min-width: 250px;">Title & Details</th>
+                                <th style="width: 120px;">Category</th>
+                                <th style="width: 180px;">Student</th>
+                                <th style="width: 180px;">Adviser</th>
+                                <th style="width: 130px;">Status</th>
+                                <th style="width: 70px; text-align: center;">Papers</th>
+                                <th style="width: 110px;">Created</th>
+                                <th style="width: 70px; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($titles)): ?>
+                                <tr>
+                                    <td colspan="9" class="empty-state">
+                                        <span class="material-symbols-outlined">search_off</span>
+                                        <p>No titles found</p>
+                                    </td>
+                                </tr>
                             <?php else: ?>
-                                <span class="category-badge">Uncategorized</span>
+                                <?php foreach($titles as $title): ?>
+                                <tr>
+                                    <td class="checkbox-cell" style="text-align: center;">
+                                        <input type="checkbox" 
+                                               name="selected_titles[]" 
+                                               value="<?php echo $title['id']; ?>" 
+                                               class="title-select" 
+                                               onchange="updateBatchBar()">
+                                    </td>
+                                    <td>
+                                        <div class="title-info">
+                                            <h4>
+                                                <a href="../titles/view.php?id=<?php echo $title['id']; ?>" target="_blank">
+                                                    <?php echo htmlspecialchars(substr($title['title'], 0, 60)) . (strlen($title['title']) > 60 ? '...' : ''); ?>
+                                                </a>
+                                            </h4>
+                                            <div class="title-meta">
+                                                <span>
+                                                    <span class="material-symbols-outlined">description</span> 
+                                                    <?php echo $title['paper_count']; ?> papers
+                                                </span>
+                                                <span>
+                                                    <span class="material-symbols-outlined">comment</span> 
+                                                    <?php echo $title['comment_count']; ?> comments
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if($title['category_name']): ?>
+                                            <span class="category-badge" style="background: <?php echo htmlspecialchars($title['category_color'] ?? '#2D5A27'); ?>20; color: <?php echo htmlspecialchars($title['category_color'] ?? '#2D5A27'); ?>;">
+                                                <?php echo htmlspecialchars($title['category_name']); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="category-badge">Uncategorized</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <div class="student-info">
+                                            <span class="student-name"><?php echo htmlspecialchars($title['student_name'] ?? 'Unknown'); ?></span>
+                                            <span class="student-id"><?php echo htmlspecialchars($title['student_id_number'] ?? ''); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if($title['adviser_name']): ?>
+                                            <span class="adviser-name"><?php echo htmlspecialchars($title['adviser_name']); ?></span>
+                                        <?php else: ?>
+                                            <span style="color: #999;">Not assigned</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge <?php echo $title['status']; ?>">
+                                            <?php echo ucfirst(str_replace('_', ' ', $title['status'])); ?>
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center; font-weight: 500;">
+                                        <?php echo $title['paper_count']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo date('M d, Y', strtotime($title['created_at'])); ?>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="action-menu">
+                                            <button type="button" class="meatball-btn" onclick="event.stopPropagation(); toggleDropdown(event, this)">
+                                                <span class="material-symbols-outlined">more_horiz</span>
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <a href="javascript:void(0)" class="view" onclick="event.stopPropagation(); window.open('../titles/view.php?id=<?php echo $title['id']; ?>', '_blank'); closeDropdowns();">
+                                                    <span class="material-symbols-outlined">visibility</span>
+                                                    View
+                                                </a>
+                                                <a href="edit-title.php?id=<?php echo $title['id']; ?>" class="edit" onclick="event.stopPropagation();">
+                                                    <span class="material-symbols-outlined">edit</span>
+                                                    Edit
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="javascript:void(0)" class="delete" onclick="event.stopPropagation(); confirmSingleDelete(<?php echo $title['id']; ?>, '<?php echo htmlspecialchars(addslashes($title['title'])); ?>'); closeDropdowns();">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                    Delete
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
                             <?php endif; ?>
-                        </td>
-                        <td>
-                            <div class="student-info">
-                                <span class="student-name"><?php echo htmlspecialchars($title['student_name'] ?? 'Unknown'); ?></span>
-                                <span class="student-id"><?php echo htmlspecialchars($title['student_id_number'] ?? ''); ?></span>
-                            </div>
-                        </td>
-                        <td>
-                            <?php if($title['adviser_name']): ?>
-                                <span class="adviser-name"><?php echo htmlspecialchars($title['adviser_name']); ?></span>
-                            <?php else: ?>
-                                <span style="color: #999;">Not assigned</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <span class="status-badge <?php echo $title['status']; ?>">
-                                <?php echo ucfirst(str_replace('_', ' ', $title['status'])); ?>
-                            </span>
-                        </td>
-                        <td style="text-align: center; font-weight: 500;">
-                            <?php echo $title['paper_count']; ?>
-                        </td>
-                        <td>
-                            <?php echo date('M d, Y', strtotime($title['created_at'])); ?>
-                        </td>
-                        <td style="text-align: center;">
-                            <div class="action-menu">
-                                <button type="button" class="meatball-btn" onclick="event.stopPropagation(); toggleDropdown(event, this)">
-                                    <span class="material-symbols-outlined">more_horiz</span>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="javascript:void(0)" class="view" onclick="event.stopPropagation(); window.open('../titles/view.php?id=<?php echo $title['id']; ?>', '_blank'); closeDropdowns();">
-                                        <span class="material-symbols-outlined">visibility</span>
-                                        View
-                                    </a>
-                                    <a href="edit-title.php?id=<?php echo $title['id']; ?>" class="edit" onclick="event.stopPropagation();">
-                                        <span class="material-symbols-outlined">edit</span>
-                                        Edit
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a href="javascript:void(0)" class="delete" onclick="event.stopPropagation(); confirmSingleDelete(<?php echo $title['id']; ?>, '<?php echo htmlspecialchars(addslashes($title['title'])); ?>'); closeDropdowns();">
-                                        <span class="material-symbols-outlined">delete</span>
-                                        Delete
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
 
         <!-- Pagination -->
         <?php if($total_pages > 1): ?>
@@ -618,7 +618,9 @@ $role = $_SESSION['role'] ?? 'user';
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeDropdowns();
-                closeConfirmationModal();
+                if (typeof closeConfirmationModal === 'function') {
+                    closeConfirmationModal();
+                }
             }
         });
 
@@ -679,24 +681,41 @@ $role = $_SESSION['role'] ?? 'user';
 
         function confirmBatchDelete() {
             const checkboxes = document.querySelectorAll('.title-select:checked');
-            if (checkboxes.length === 0) return;
-            
+            if (checkboxes.length === 0) {
+                alert('Please select at least one title to delete.');
+                return;
+            }
+
+            const form = document.getElementById('batchDeleteForm');
+            const selectedCount = checkboxes.length;
+
+            // Use your existing modal
             showConfirmationModal({
                 title: 'Delete Multiple Titles',
-                message: `Are you sure you want to delete <strong>${checkboxes.length}</strong> title(s)?<br><br><span style="color: #dc3545;">This action cannot be undone. All associated papers, comments, and files will be permanently deleted.</span>`,
+                message: `Are you sure you want to delete <strong>${selectedCount}</strong> title(s)?<br><br><span style="color: #dc3545;">This action cannot be undone. All associated papers, comments, and files will be permanently deleted.</span>`,
                 confirmText: 'Yes, Delete All',
-                onConfirm: function() {
-                    document.getElementById('batchDeleteForm').submit();
-                },
-                type: 'delete'
+                type: 'delete',
+                confirmUrl: '#'  // We'll override this with our own function
             });
+
+            // Override the confirm button click to submit the form
+            const confirmBtn = document.getElementById('modal-confirm');
+            const originalClick = confirmBtn.onclick;
+
+            confirmBtn.onclick = function(e) {
+                e.preventDefault();
+                form.submit();
+                closeModal();
+            };
         }
 
         function confirmSingleDelete(titleId, titleName) {
+            const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
+            
             showConfirmationModal({
                 title: 'Delete Title',
                 message: `Are you sure you want to delete "<strong>${titleName}</strong>"?<br><br><span style="color: #dc3545;">This action cannot be undone. All associated papers, comments, and files will be permanently deleted.</span>`,
-                confirmUrl: `?delete=${titleId}&csrf_token=<?php echo $_SESSION['csrf_token']; ?>`,
+                confirmUrl: `?delete=${titleId}&csrf_token=${csrfToken}`,
                 confirmText: 'Yes, Delete',
                 type: 'delete'
             });
