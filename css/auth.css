@@ -1,0 +1,603 @@
+/* ===== AUTHENTICATION SPECIFIC STYLES ===== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root {
+    --primary-color: #2D5A27;
+    --primary-dark: #1e3d1a;
+    --accent-color: #4CAF50;
+    --text-light: #fff;
+    --text-dark: #2c3e50;
+    --bg-light: #f4f7f4;
+    --bg-dark: #1a1a1a;
+    --font-base: 14px; /* Reduced from 15px */
+}
+
+html {
+    font-size: var(--font-base);
+}
+
+body {
+    background: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+    position: relative;
+}
+
+/* Background image with blur */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../Images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(8px) brightness(0.7);
+    transform: scale(1.1);
+    z-index: -2;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(45, 90, 39, 0.2);
+    z-index: -1;
+}
+
+/* Back to Login link */
+.back-to-login {
+    text-align: center;
+    margin-top: 12px; /* Reduced */
+}
+
+.back-to-login a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 12px; /* Reduced */
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 2px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.back-to-login a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.back-to-login a:hover {
+    color: var(--primary-dark);
+}
+
+.back-to-login a:hover::after {
+    width: 100%;
+}
+
+.back-to-login .material-symbols-outlined {
+    font-size: 13px; /* Reduced */
+    vertical-align: middle;
+    margin-right: 3px;
+    transition: transform 0.3s ease;
+}
+
+.back-to-login a:hover .material-symbols-outlined {
+    transform: translateX(-3px);
+}
+
+/* Back to Home Button */
+.back-to-home {
+    margin-bottom: 10px; /* Reduced */
+    text-align: left;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    text-decoration: none;
+    font-size: 11px; /* Reduced */
+    font-weight: 500;
+    padding: 5px 10px; /* Reduced */
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.back-btn .material-symbols-outlined {
+    font-size: 15px; /* Reduced */
+}
+
+.back-btn:hover {
+    background: var(--primary-color);
+    transform: translateX(-3px);
+    border-color: var(--primary-color);
+}
+
+/* Auth Container - SMALLER */
+.auth-container {
+    width: 100%;
+    max-width: 360px; /* Reduced from 400px */
+    position: relative;
+}
+
+.auth-container.wide {
+    max-width: 480px; /* Reduced from 550px */
+}
+
+/* Auth Box - SMALLER */
+.auth-box {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    padding: 25px; /* Reduced from 30px */
+    border-radius: 22px; /* Slightly smaller */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.auth-box.wide {
+    max-width: 100%;
+    padding: 20px 22px; /* Reduced */
+}
+
+/* Branding & Header - SMALLER */
+.logo {
+    text-align: center;
+    margin-bottom: 15px; /* Reduced */
+}
+
+.logo img {
+    height: 48px; /* Reduced from 55px */
+    width: auto;
+}
+
+.logo h2 {
+    color: var(--primary-color);
+    margin-top: 5px; /* Reduced */
+    font-size: 18px; /* Reduced from 20px */
+    font-weight: 600;
+}
+
+.info-text {
+    color: #4d6a4a;
+    text-align: center;
+    font-size: 12px; /* Reduced */
+    line-height: 1.4;
+    margin-bottom: 12px; /* Reduced */
+}
+
+/* Form Elements - SMALLER */
+.form-group {
+    margin-bottom: 12px; /* Reduced */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px; /* Reduced */
+    color: #333;
+    font-size: 12px; /* Reduced */
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px 12px; /* Reduced from 10px 14px */
+    font-size: 13px; /* Reduced */
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px; /* Slightly smaller */
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+    background: white;
+}
+
+.form-group input::placeholder {
+    color: #a0b8a0;
+    font-size: 12px; /* Reduced */
+}
+
+/* Button - SMALLER */
+button {
+    width: 100%;
+    padding: 10px; /* Reduced from 12px */
+    font-size: 13px; /* Reduced */
+    font-weight: 600;
+    color: white;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px 0 12px; /* Reduced */
+    box-shadow: 0 4px 12px rgba(45, 90, 39, 0.2);
+}
+
+button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(45, 90, 39, 0.3);
+}
+
+/* Feedback & Alerts - SMALLER */
+.error,
+.message,
+.success {
+    padding: 8px; /* Reduced */
+    border-radius: 10px; /* Reduced */
+    margin-bottom: 12px; /* Reduced */
+    text-align: center;
+    font-size: 12px; /* Reduced */
+    font-weight: 500;
+}
+
+.error {
+    background: #fee7e7;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+}
+
+.message,
+.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #a8e0b7;
+}
+
+.demo-link {
+    background: #f9fcf9;
+    padding: 10px; /* Reduced */
+    border-radius: 10px; /* Reduced */
+    border: 1px dashed var(--primary-color);
+    margin-top: 6px;
+    font-size: 11px; /* Reduced */
+    word-break: break-all;
+}
+
+/* Links & Navigation - SMALLER */
+.links {
+    text-align: center;
+    margin-top: 12px; /* Reduced */
+    padding-top: 12px; /* Reduced */
+    border-top: 1.5px solid #e0ebe4;
+}
+
+.links p {
+    color: #4d6a4a;
+    font-size: 12px; /* Reduced */
+    margin-bottom: 5px; /* Reduced */
+}
+
+.forgot-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 11px; /* Reduced */
+    display: block;
+    text-align: right;
+    margin: 2px 0 8px; /* Reduced */
+    font-weight: 500;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.register-link,
+.login-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px; /* Reduced */
+    margin-left: 3px; /* Reduced */
+}
+
+.register-link:hover,
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* Remember Me Checkbox Styles - SMALLER */
+.remember-me {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0 12px;
+    flex-direction: row !important; /* Force row layout */
+    gap: 8px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #4d6a4a;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.checkbox-container span {
+    white-space: nowrap; /* Keep text on one line */
+    font-size: 12px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 14px; /* Reduced */
+    height: 14px; /* Reduced */
+    accent-color: var(--primary-color);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Privacy Policy Checkbox Styles - SMALLER */
+.privacy-policy {
+    margin: 12px 0 15px; /* Reduced */
+}
+
+.privacy-policy .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px; /* Reduced */
+    cursor: pointer;
+    color: #4d6a4a;
+    user-select: none;
+}
+
+.privacy-policy .checkbox-container input[type="checkbox"] {
+    width: 14px; /* Reduced */
+    height: 14px; /* Reduced */
+    accent-color: var(--primary-color);
+    cursor: pointer;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.privacy-policy .checkbox-text {
+    font-size: 12px; /* Reduced */
+    line-height: 1.4;
+    color: #4d6a4a;
+}
+
+.privacy-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 12px; /* Reduced */
+}
+
+.privacy-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Registration Specific Grid - SMALLER */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px; /* Reduced */
+    margin-bottom: 5px;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+/* Password Hint - SMALLER */
+.password-hint {
+    font-size: 10px; /* Reduced */
+    color: #888;
+    margin-top: 3px; /* Reduced */
+}
+
+/* Auto-gen note - SMALLER */
+.auto-gen-note {
+    font-size: 10px; /* Reduced */
+    color: var(--primary-color);
+    margin-top: 3px; /* Reduced */
+    font-style: italic;
+}
+
+/* Demo info - SMALLER */
+.demo-info {
+    background: #f0f7f0;
+    padding: 8px; /* Reduced */
+    border-radius: 10px; /* Reduced */
+    margin-top: 10px; /* Reduced */
+    font-size: 11px; /* Reduced */
+    color: var(--primary-color);
+    text-align: center;
+}
+
+/* Responsive Design - ADJUSTED FOR SMALLER CONTAINER */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+    
+    .auth-container,
+    .auth-container.wide {
+        max-width: 100%;
+        padding: 0 8px;
+    }
+    
+    .auth-box,
+    .auth-box.wide {
+        padding: 20px 15px;
+    }
+    
+    .logo img {
+        height: 45px;
+    }
+    
+    .logo h2 {
+        font-size: 17px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .full-width {
+        grid-column: span 1;
+    }
+    
+    .form-group {
+        margin-bottom: 5px;
+    }
+    
+    .form-group label {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 8px 10px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+    
+    .back-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+    
+    .back-btn .material-symbols-outlined {
+        font-size: 14px;
+    }
+    
+    .privacy-policy {
+        margin: 8px 0 12px;
+    }
+    
+    .privacy-policy .checkbox-text {
+        font-size: 11px;
+    }
+    
+    .privacy-link {
+        white-space: normal;
+    }
+    
+    .privacy-policy .checkbox-container input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+    }
+    
+    button {
+        padding: 10px;
+        font-size: 13px;
+        margin: 5px 0 12px;
+    }
+    
+    .links {
+        margin-top: 8px;
+        padding-top: 10px;
+    }
+    
+    .links p {
+        font-size: 12px;
+    }
+    
+    .remember-me {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .forgot-link {
+        margin: 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .auth-box,
+    .auth-box.wide {
+        padding: 15px 12px;
+    }
+    
+    .logo img {
+        height: 40px;
+    }
+    
+    .logo h2 {
+        font-size: 16px;
+        margin-top: 3px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 7px 9px;
+        font-size: 12px;
+    }
+    
+    .privacy-policy .checkbox-text {
+        font-size: 10px;
+    }
+    
+    .privacy-policy .checkbox-container input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+    }
+    
+    button {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .links p {
+        font-size: 11px;
+    }
+}
+
+/* Scale down for larger screens */
+@media (min-width: 1200px) {
+    :root {
+        --font-base: 13px; /* Reduced */
+    }
+    
+    .auth-container {
+        transform: scale(0.95);
+    }
+}

@@ -1,0 +1,212 @@
+# ============================================
+# KLD Capstone Tracker - .gitignore
+# ============================================
+
+# -------------------------------
+# PHP & Composer
+# -------------------------------
+/vendor/
+composer.phar
+composer.lock
+.auth.json
+.auth.json.old
+
+# -------------------------------
+# Database & Configuration
+# -------------------------------
+/config/database.php
+/config/config.php
+.env
+.env.local
+.env.production
+.env.development
+*.sql
+*.sql.gz
+*.sql.zip
+/database-backup/*.sql
+/database-backup/*.gz
+/database-backup/*.zip
+!database-backup/.gitkeep
+init.sql
+
+# -------------------------------
+# Uploads & User Files
+# -------------------------------
+/uploads/
+/uploads/*
+!/uploads/.gitkeep
+/uploads/papers/
+/uploads/papers/*
+!/uploads/papers/.gitkeep
+/uploads/avatars/
+/uploads/avatars/*
+!/uploads/avatars/.gitkeep
+/uploads/temp/
+/uploads/temp/*
+!/uploads/temp/.gitkeep
+
+# -------------------------------
+# Logs & Error Logs
+# -------------------------------
+*.log
+error_log
+php_error_log
+php_errors.log
+debug.log
+logs/
+*.log.zip
+
+# -------------------------------
+# Cache & Temporary Files
+# -------------------------------
+*.cache
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+cache/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------------
+# IDE & Editor Files
+# -------------------------------
+.vscode/
+.idea/
+*.sublime-*
+.project
+.classpath
+.settings/
+*.code-workspace
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# -------------------------------
+# OS Generated Files
+# -------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.dll
+*.exe
+*.so
+*.dylib
+
+# -------------------------------
+# Session Files
+# -------------------------------
+sessions/
+session/
+*.session
+sess_*
+
+# -------------------------------
+# Backup & Archive Files
+# -------------------------------
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.save
+*.swp
+*.swo
+*~
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tgz
+backup_*
+*.sql.zip
+
+# -------------------------------
+# Security & Sensitive Files
+# -------------------------------
+.htaccess
+.htpasswd
+.htaccess.bak
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+secrets/
+secrets.json
+config.inc.php.bak
+
+# -------------------------------
+# Docker
+# -------------------------------
+docker-compose.override.yml
+.docker/
+docker-data/
+mysql-data/
+.Dockerfile.swp
+
+# -------------------------------
+# Node Modules (if any frontend)
+# -------------------------------
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log
+yarn-error.log
+
+# -------------------------------
+# Testing & Coverage
+# -------------------------------
+tests/_output/
+tests/_support/_generated/
+coverage/
+*.codeception.yml
+.phpunit.result.cache
+.phpunit.cache
+
+# -------------------------------
+# Composer Specific
+# -------------------------------
+composer.lock  # Uncomment if you want to ignore lock file
+# composer.json is kept for dependency management
+
+# -------------------------------
+# Project Specific
+# -------------------------------
+Importants.txt  # If this contains sensitive info
+*.env
+!.env.example
+
+# -------------------------------
+# Keep directory structures
+# -------------------------------
+!**/.gitkeep
+!.gitignore
+!.env.example
+!config/database.example.php
+!init-sample.sql
+
+# -------------------------------
+# Email attachments or temporary files
+# -------------------------------
+/email-attachments/
+/temp-uploads/
+*.eml
+*.msg
+
+# -------------------------------
+# Mailer logs
+# -------------------------------
+mailer.log
+email_logs/
