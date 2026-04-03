@@ -66,9 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     }
 }
 
-// Handle Preferences Update (without theme)
+// Handle Preferences Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_preferences'])) {
-    $language = $_POST['language'] ?? 'en';
     $email_notifications = isset($_POST['email_notifications']) ? 1 : 0;
     $deadline_reminders = isset($_POST['deadline_reminders']) ? 1 : 0;
     
@@ -81,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_preferences'])) 
             $create_table = "CREATE TABLE user_preferences (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 user_id INT NOT NULL UNIQUE,
-                language VARCHAR(10) DEFAULT 'en',
                 email_notifications TINYINT(1) DEFAULT 1,
                 deadline_reminders TINYINT(1) DEFAULT 1,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -99,22 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_preferences'])) 
         
         if ($exists) {
             $update_query = "UPDATE user_preferences 
-                            SET language = :language, 
-                                email_notifications = :email_notifications, 
+                            SET email_notifications = :email_notifications, 
                                 deadline_reminders = :deadline_reminders 
                             WHERE user_id = :user_id";
             $update_stmt = $db->prepare($update_query);
-            $update_stmt->bindParam(':language', $language);
             $update_stmt->bindParam(':email_notifications', $email_notifications);
             $update_stmt->bindParam(':deadline_reminders', $deadline_reminders);
             $update_stmt->bindParam(':user_id', $user_id);
             $update_stmt->execute();
         } else {
-            $insert_query = "INSERT INTO user_preferences (user_id, language, email_notifications, deadline_reminders) 
-                            VALUES (:user_id, :language, :email_notifications, :deadline_reminders)";
+            $insert_query = "INSERT INTO user_preferences (user_id, email_notifications, deadline_reminders) 
+                            VALUES (:user_id, :email_notifications, :deadline_reminders)";
             $insert_stmt = $db->prepare($insert_query);
             $insert_stmt->bindParam(':user_id', $user_id);
-            $insert_stmt->bindParam(':language', $language);
             $insert_stmt->bindParam(':email_notifications', $email_notifications);
             $insert_stmt->bindParam(':deadline_reminders', $deadline_reminders);
             $insert_stmt->execute();
@@ -128,8 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_preferences'])) 
     }
 }
 
-// Get user preferences (without theme)
-$language = 'en';
+// Get user preferences
 $email_notifications = 1;
 $deadline_reminders = 1;
 
@@ -141,7 +135,6 @@ try {
     $db_prefs = $pref_stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($db_prefs) {
-        $language = $db_prefs['language'] ?? 'en';
         $email_notifications = $db_prefs['email_notifications'] ?? 1;
         $deadline_reminders = $db_prefs['deadline_reminders'] ?? 1;
     }
@@ -152,7 +145,7 @@ try {
 $full_name = $_SESSION['full_name'] ?? 'User';
 $role = $_SESSION['role'] ?? 'user';
 
-// Active sessions (simplified - would need a sessions table for real implementation)
+// Active sessions
 $active_sessions = [
     ['id' => 1, 'device' => 'Chrome on Windows', 'location' => 'Dasmarinas, Cavite', 'ip' => '192.168.1.1', 'last_active' => 'Now', 'current' => true],
 ];
@@ -165,315 +158,7 @@ $active_sessions = [
     <title>Manage Account - KLD Capstone</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        body {
-            background: #f5f7f5;
-            padding-top: 80px;
-        }
-        
-        .manage-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .header {
-            background: white;
-            border-radius: 32px;
-            padding: 25px 30px;
-            margin: 20px 0 30px;
-            box-shadow: 0 10px 25px rgba(45, 90, 39, 0.05);
-            border: 1px solid #e2efdf;
-            transition: all 0.3s ease;
-        }
-        
-        .header h1 {
-            color: #1e3d1a;
-            font-size: 2rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .header p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #e2efdf;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 30px 30px 0 0;
-        }
-        
-        .tab-btn:hover {
-            color: #2D5A27;
-            background: rgba(45, 90, 39, 0.1);
-        }
-        
-        .tab-btn.active {
-            color: #2D5A27;
-            border-bottom: 3px solid #2D5A27;
-            background: rgba(45, 90, 39, 0.05);
-        }
-        
-        .tab-content {
-            display: none;
-            background: white;
-            border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border: 1px solid #e2efdf;
-        }
-        
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-info {
-            background: #f8fbf8;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .user-info div:first-child {
-            font-weight: 600;
-            color: #1e3d1a;
-        }
-        
-        .user-info div:nth-child(2) {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .user-info div:last-child {
-            font-size: 0.8rem;
-            color: #2D5A27;
-            text-transform: capitalize;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #2D5A27;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
-            color: #333;
-        }
-        
-        .password-hint {
-            font-size: 0.7rem;
-            color: #999;
-            margin-top: 0.5rem;
-        }
-        
-        .btn-save {
-            background: #2D5A27;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-save:hover {
-            background: #1e3d1a;
-            transform: translateY(-2px);
-        }
-        
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .alert.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #a8e0b7;
-        }
-        
-        .alert.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .session-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .session-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: #f8fbf8;
-            border-radius: 16px;
-            border: 1px solid #e2efdf;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .session-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .session-device {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .session-device .material-symbols-outlined {
-            color: #2D5A27;
-        }
-        
-        .session-details {
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
-        .current-badge {
-            background: #2D5A27;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        
-        .btn-terminate {
-            background: transparent;
-            border: 1px solid #dc3545;
-            color: #dc3545;
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-terminate:hover {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            color: #666;
-            text-decoration: none;
-        }
-        
-        .back-link:hover {
-            color: #2D5A27;
-        }
-        
-        .info-note {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f8fbf8;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .manage-container {
-                padding: 1rem;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab-btn {
-                text-align: left;
-                border-radius: 30px;
-            }
-            
-            .tab-btn.active {
-                border-bottom: none;
-                background: rgba(45, 90, 39, 0.1);
-            }
-            
-            .session-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/manage-account.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <?php include 'includes/dashboard-nav.php'; ?>
@@ -527,29 +212,37 @@ $active_sessions = [
             </form>
         </div>
         
-        <!-- Tab 2: Preferences (without theme) -->
+        <!-- Tab 2: Preferences -->
         <div class="tab-content" id="tab-preferences">
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background: #e8f5e9; border-radius: 8px; color: #2e7d32;">
+                <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">info</span>
+                <small> Your preferences control how you receive communications from the system.</small>
+            </div>
+            
             <form method="POST">
-                <div class="form-group">
-                    <label>Language</label>
-                    <select name="language">
-                        <option value="en" <?php echo $language === 'en' ? 'selected' : ''; ?>>English</option>
-                        <option value="fil" <?php echo $language === 'fil' ? 'selected' : ''; ?>>Filipino</option>
-                    </select>
-                </div>
-                
                 <div class="checkbox-group">
                     <input type="checkbox" name="email_notifications" id="email_notifications" <?php echo $email_notifications ? 'checked' : ''; ?>>
                     <label for="email_notifications">Receive email notifications</label>
+                </div>
+                <div style="margin-left: 28px; margin-bottom: 1rem;">
+                    <small style="color: #666;">Get notified about title approvals, deadlines, and system updates.</small>
                 </div>
                 
                 <div class="checkbox-group">
                     <input type="checkbox" name="deadline_reminders" id="deadline_reminders" <?php echo $deadline_reminders ? 'checked' : ''; ?>>
                     <label for="deadline_reminders">Send deadline reminders (24 hours before due date)</label>
                 </div>
+                <div style="margin-left: 28px; margin-bottom: 1.5rem;">
+                    <small style="color: #666;">Receive email reminders one day before important deadlines.</small>
+                </div>
                 
                 <button type="submit" name="save_preferences" class="btn-save">Save Preferences</button>
             </form>
+            
+            <div class="info-note" style="margin-top: 1.5rem;">
+                <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">info</span>
+                <small> These settings apply to all email communications from the system. You can change them at any time.</small>
+            </div>
         </div>
         
         <!-- Tab 3: Active Sessions -->
@@ -579,7 +272,7 @@ $active_sessions = [
             </div>
             <div class="info-note">
                 <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">info</span>
-                <small> Active sessions show where you're currently logged in.</small>
+                <small> Active sessions show where you're currently logged in. Terminate any session you don't recognize.</small>
             </div>
         </div>
         

@@ -6,6 +6,49 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
+/**
+ * Check if user wants to receive email notifications
+ */
+function userWantsEmailNotifications($user_id, $db) {
+    try {
+        $query = "SELECT email_notifications FROM user_preferences WHERE user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        $pref = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // If no preference set, default to true (send email)
+        if (!$pref) {
+            return true;
+        }
+        return $pref['email_notifications'] == 1;
+    } catch (PDOException $e) {
+        error_log("Check email preference error: " . $e->getMessage());
+        return true; // Default to send on error
+    }
+}
+
+/**
+ * Check if user wants deadline reminders
+ */
+function userWantsDeadlineReminders($user_id, $db) {
+    try {
+        $query = "SELECT deadline_reminders FROM user_preferences WHERE user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        $pref = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$pref) {
+            return true;
+        }
+        return $pref['deadline_reminders'] == 1;
+    } catch (PDOException $e) {
+        error_log("Check deadline reminder error: " . $e->getMessage());
+        return true;
+    }
+}
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -90,6 +133,25 @@ function sendEmail($to_email, $to_name, $subject, $html_message) {
  * Send email notification for capstone status changes
  */
 function sendCapstoneNotification($to_email, $to_name, $title, $status, $remarks = '', $actor_name = '') {
+    
+    // Get user_id from email to check preferences
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $to_email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($user) {
+        // Check if user wants email notifications
+        if (!userWantsEmailNotifications($user['id'], $db)) {
+            error_log("User {$user['id']} has disabled email notifications. Skipping capstone notification.");
+            return false;
+        }
+    }
+    // ===== END OF PREFERENCE CHECK =====
     
     // Validate email
     if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
@@ -202,6 +264,23 @@ function sendCapstoneNotification($to_email, $to_name, $title, $status, $remarks
  */
 function sendPaperUploadNotification($to_email, $to_name, $student_name, $title, $paper_type, $title_id = null) {
     
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $to_email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($user) {
+        if (!userWantsEmailNotifications($user['id'], $db)) {
+            error_log("User {$user['id']} has disabled email notifications. Skipping paper upload notification.");
+            return false;
+        }
+    }
+    // ===== END OF PREFERENCE CHECK =====
+    
     // Validate email
     if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
         error_log("Invalid email address: " . $to_email);
@@ -262,6 +341,23 @@ function sendPaperUploadNotification($to_email, $to_name, $student_name, $title,
  */
 function sendAdviserRequestNotification($to_email, $to_name, $student_name, $title) {
     
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $to_email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($user) {
+        if (!userWantsEmailNotifications($user['id'], $db)) {
+            error_log("User {$user['id']} has disabled email notifications. Skipping adviser request notification.");
+            return false;
+        }
+    }
+    // ===== END OF PREFERENCE CHECK =====
+    
     // Validate email
     if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
         error_log("Invalid email address: " . $to_email);
@@ -317,6 +413,23 @@ function sendAdviserRequestNotification($to_email, $to_name, $student_name, $tit
  * Send notification for new deadlines
  */
 function sendDeadlineNotification($to_email, $to_name, $deadline_title, $deadline_datetime, $description, $created_by) {
+    
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id FROM users WHERE email = :email";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $to_email);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($user) {
+        if (!userWantsEmailNotifications($user['id'], $db)) {
+            error_log("User {$user['id']} has disabled email notifications. Skipping deadline notification.");
+            return false;
+        }
+    }
+    // ===== END OF PREFERENCE CHECK =====
     
     // Validate email
     if (empty($to_email) || !filter_var($to_email, FILTER_VALIDATE_EMAIL)) {
