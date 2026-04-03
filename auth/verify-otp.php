@@ -4,6 +4,22 @@ date_default_timezone_set('Asia/Manila');
 require_once '../config/database.php';
 require_once '../includes/email-helper.php';
 
+// Display debug OTP if email sending failed
+$debug_otp = '';
+if (isset($_SESSION['debug_otp'])) {
+    $debug_otp = $_SESSION['debug_otp'];
+    unset($_SESSION['debug_otp']);
+}
+
+// Display flash message if exists
+$flash_message = '';
+$flash_type = '';
+if (isset($_SESSION['flash_message'])) {
+    $flash_message = $_SESSION['flash_message'];
+    $flash_type = $_SESSION['flash_type'] ?? 'info';
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+}
+
 // Redirect if not coming from registration
 if (!isset($_SESSION['pending_verification']) || !isset($_SESSION['pending_user_id'])) {
     header('Location: register.php');
@@ -26,7 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
     } elseif (strlen($otp_code) !== 6 || !ctype_digit($otp_code)) {
         $error = "Please enter a valid 6-digit verification code.";
     } else {
-        if (verifyOTP($db, $_SESSION['pending_user_id'], $otp_code)) {
+        $user_id = $_SESSION['pending_user_id'];
+        
+        // Debug log
+        error_log("Verifying OTP: $otp_code for user_id: $user_id");
+        
+        if (verifyOTP($db, $user_id, $otp_code)) {
             // Verification successful
             unset($_SESSION['pending_verification']);
             unset($_SESSION['pending_user_id']);
@@ -35,7 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['verify'])) {
             header('Location: login.php');
             exit;
         } else {
-            $error = "Invalid or expired verification code. Please try again or request a new code.";
+            // Check if OTP exists but expired
+            $check_query = "SELECT * FROM email_verifications 
+                            WHERE user_id = :user_id 
+                            AND otp_code = :otp_code 
+                            AND is_verified = 0";
+            $check_stmt = $db->prepare($check_query);
+            $check_stmt->bindParam(':user_id', $user_id);
+            $check_stmt->bindParam(':otp_code', $otp_code);
+            $check_stmt->execute();
+            
+            if ($check_stmt->rowCount() > 0) {
+                $otp_data = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                if (strtotime($otp_data['expires_at']) < time()) {
+                    $error = "Verification code has expired. Please request a new code.";
+                } else {
+                    $error = "Invalid verification code. Please try again.";
+                }
+            } else {
+                $error = "Invalid verification code. Please try again or request a new code.";
+            }
         }
     }
 }
@@ -53,16 +93,21 @@ if (isset($_GET['resend'])) {
         $new_otp = generateOTP();
         
         if (saveOTP($db, $user['id'], $user['email'], $new_otp)) {
-            if (sendOTPEmail($user['email'], $user['full_name'], $new_otp)) {
+            $email_sent = sendOTPEmail($user['email'], $user['full_name'], $new_otp);
+            if ($email_sent) {
                 $resend_message = "A new verification code has been sent to your email.";
+                error_log("Resend OTP successful for: " . $user['email']);
             } else {
                 $resend_message = "Failed to send email. Please try again.";
+                error_log("Resend OTP email failed for: " . $user['email']);
+                // Store debug OTP
+                $_SESSION['debug_otp'] = $new_otp;
             }
         } else {
             $resend_message = "Failed to generate new code. Please try again.";
         }
     } else {
-        $resend_message = "User not found. Please register again.";
+        $resend_message = "User not found or already verified. Please register again.";
     }
 }
 
@@ -72,6 +117,14 @@ $user_stmt = $db->prepare($user_query);
 $user_stmt->bindParam(':user_id', $_SESSION['pending_user_id']);
 $user_stmt->execute();
 $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+// If user not found, redirect to register
+if (!$user) {
+    unset($_SESSION['pending_verification']);
+    unset($_SESSION['pending_user_id']);
+    header('Location: register.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,6 +160,40 @@ $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
             text-align: center;
             margin: 15px 0;
         }
+        .warning-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .success-box {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .error-box {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #dc3545;
+        }
+        .debug-code {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            background: #f0f7f0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 5px;
+        }
     </style>
 </head>
 <body>
@@ -131,12 +218,25 @@ $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
                 <strong><?php echo htmlspecialchars($user['email'] ?? ''); ?></strong>
             </div>
             
+            <?php if($flash_message): ?>
+                <div class="<?php echo $flash_type === 'success' ? 'success-box' : 'warning-box'; ?>">
+                    <?php echo htmlspecialchars($flash_message); ?>
+                </div>
+            <?php endif; ?>
+            
             <?php if($error): ?>
-                <div class="error"><?php echo htmlspecialchars($error); ?></div>
+                <div class="error-box"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             
             <?php if($resend_message): ?>
-                <div class="success"><?php echo htmlspecialchars($resend_message); ?></div>
+                <div class="success-box"><?php echo htmlspecialchars($resend_message); ?></div>
+            <?php endif; ?>
+            
+            <?php if($debug_otp): ?>
+                <div class="warning-box">
+                    <strong>⚠️ Debug Mode (Email couldn't be sent)</strong><br>
+                    Your verification code is: <strong style="font-size: 24px; letter-spacing: 3px;"><?php echo $debug_otp; ?></strong>
+                </div>
             <?php endif; ?>
             
             <form method="POST">

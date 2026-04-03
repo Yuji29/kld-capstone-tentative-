@@ -102,9 +102,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // ===== GET USER IP AND USER AGENT =====
                     $ip_address = getUserIP();
                     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-                    $privacy_version = '1.0'; // Update this when you change your policy
+                    $privacy_version = '1.0';
                     
-                    // ===== INSERT NEW USER WITH AGREEMENT TRACKING =====
+                    // ===== INSERT NEW USER =====
                     $insert_query = "INSERT INTO users (
                         id_number, email, password, full_name, role, department, 
                         agreed_privacy, agreed_terms, agreed_at, privacy_version, ip_address, user_agent
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $insert_stmt->bindParam(':full_name', $full_name);
                     $insert_stmt->bindParam(':department', $department);
                     $insert_stmt->bindParam(':agree_privacy', $agree_privacy);
-                    $insert_stmt->bindParam(':agree_terms', $agree_privacy); // Same checkbox for both
+                    $insert_stmt->bindParam(':agree_terms', $agree_privacy);
                     $insert_stmt->bindParam(':privacy_version', $privacy_version);
                     $insert_stmt->bindParam(':ip_address', $ip_address);
                     $insert_stmt->bindParam(':user_agent', $user_agent);
@@ -129,16 +129,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Get the new user's ID
                         $new_user_id = $db->lastInsertId();
                         
-                        // Generate and save OTP
+                        // Generate OTP
                         $otp_code = generateOTP();
-                        saveOTP($db, $new_user_id, $email, $otp_code);
+                        
+                        // Save OTP to database
+                        $otp_saved = saveOTP($db, $new_user_id, $email, $otp_code);
                         
                         // Send OTP email
-                        sendOTPEmail($email, $full_name, $otp_code);
+                        $email_sent = sendOTPEmail($email, $full_name, $otp_code);
+                        
+                        // Debug logging
+                        error_log("=== REGISTRATION DEBUG ===");
+                        error_log("User ID: " . $new_user_id);
+                        error_log("Email: " . $email);
+                        error_log("OTP Code: " . $otp_code);
+                        error_log("OTP Saved: " . ($otp_saved ? 'YES' : 'NO'));
+                        error_log("Email Sent: " . ($email_sent ? 'YES' : 'NO'));
+                        error_log("=========================");
                         
                         // Store in session for verification page
                         $_SESSION['pending_verification'] = true;
                         $_SESSION['pending_user_id'] = $new_user_id;
+                        
+                        // Set flash message
+                        if ($email_sent) {
+                            $_SESSION['flash_message'] = "Registration successful! A verification code has been sent to your email.";
+                            $_SESSION['flash_type'] = "success";
+                        } else {
+                            $_SESSION['flash_message'] = "Registration successful but we couldn't send the verification email. Please use the code below or request a new one.";
+                            $_SESSION['flash_type'] = "warning";
+                            $_SESSION['debug_otp'] = $otp_code; // For debugging only
+                        }
                         
                         // Redirect to verification page
                         header('Location: verify-otp.php');

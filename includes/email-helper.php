@@ -2,8 +2,6 @@
 // includes/email-helper.php
 // Handles sending OTP emails
 
-// require_once __DIR__ . '/../config/mail.php';
-
 // Load .env file
 $env_file = __DIR__ . '/../.env';
 if (file_exists($env_file)) {
@@ -20,15 +18,31 @@ if (file_exists($env_file)) {
     }
 }
 
+// Debug: Check if .env loaded
+error_log("=== EMAIL HELPER DEBUG ===");
+error_log("SMTP_HOST: " . (getenv('SMTP_HOST') ?: 'NOT SET'));
+error_log("SMTP_USER: " . (getenv('SMTP_USER') ?: 'NOT SET'));
+error_log("SMTP_PASS: " . (getenv('SMTP_PASS') ? 'SET' : 'NOT SET'));
+error_log("=========================");
+
+// Check if PHPMailer exists
+$autoload_path = __DIR__ . '/../vendor/autoload.php';
+if (!file_exists($autoload_path)) {
+    error_log("ERROR: PHPMailer not found at: " . $autoload_path);
+    die("PHPMailer not installed. Run: composer require phpmailer/phpmailer");
+}
+require_once $autoload_path;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 /**
  * Send OTP verification email to user
- * 
- * @param string $to Recipient email address
- * @param string $name Recipient full name
- * @param string $otp_code 6-digit verification code
- * @return bool True if email sent successfully
  */
 function sendOTPEmail($to, $name, $otp_code) {
+    error_log("sendOTPEmail called - To: $to, OTP: $otp_code");
+    
     $subject = "Verify Your Email - KLD Capstone Tracker";
     
     $message = "
@@ -74,7 +88,6 @@ function sendOTPEmail($to, $name, $otp_code) {
     </html>
     ";
     
-    // Alternative plain text version
     $alt_message = "Dear " . $name . ",\n\n";
     $alt_message .= "Thank you for registering with KLD Capstone Tracker.\n\n";
     $alt_message .= "Your verification code is: " . $otp_code . "\n\n";
@@ -89,25 +102,27 @@ function sendOTPEmail($to, $name, $otp_code) {
  * Generic email sender function
  */
 function sendEmail($to, $name, $subject, $html_message, $text_message = null) {
-    // For local testing, use Mailtrap
-    // For production, use your SMTP settings
-    
-    $smtp_host = getenv('SMTP_HOST') ?: 'sandbox.smtp.mailtrap.io';
+    $smtp_host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
     $smtp_port = getenv('SMTP_PORT') ?: 587;
     $smtp_user = getenv('SMTP_USER') ?: '';
     $smtp_pass = getenv('SMTP_PASS') ?: '';
-    $from_email = getenv('FROM_EMAIL') ?: 'noreply@kld-capstone.edu.ph';
+    $from_email = getenv('FROM_EMAIL') ?: 'kldcapstonetracker@gmail.com';
     $from_name = getenv('FROM_NAME') ?: 'KLD Capstone Tracker';
     
+    // Debug log
+    error_log("Sending email via: $smtp_host");
+    error_log("From: $from_email, To: $to");
+    
     if (empty($smtp_user) || empty($smtp_pass)) {
-        error_log("SMTP credentials not configured. Email not sent to: " . $to);
+        error_log("ERROR: SMTP credentials not configured");
         return false;
     }
     
-    require_once __DIR__ . '/../vendor/autoload.php';
-    
     try {
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        $mail = new PHPMailer(true);
+        
+        // Enable verbose debug output (remove after testing)
+        // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         
         // Server settings
         $mail->isSMTP();
@@ -115,8 +130,15 @@ function sendEmail($to, $name, $subject, $html_message, $text_message = null) {
         $mail->SMTPAuth = true;
         $mail->Username = $smtp_user;
         $mail->Password = $smtp_pass;
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = $smtp_port;
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
         
         // Recipients
         $mail->setFrom($from_email, $from_name);
@@ -133,9 +155,12 @@ function sendEmail($to, $name, $subject, $html_message, $text_message = null) {
         }
         
         $mail->send();
+        error_log("Email sent successfully to: $to");
         return true;
+        
     } catch (Exception $e) {
         error_log("Email sending failed: " . $mail->ErrorInfo);
+        error_log("Exception: " . $e->getMessage());
         return false;
     }
 }
@@ -168,7 +193,9 @@ function saveOTP($db, $user_id, $email, $otp_code) {
     $insert_stmt->bindParam(':otp_code', $otp_code);
     $insert_stmt->bindParam(':expires_at', $expires_at);
     
-    return $insert_stmt->execute();
+    $result = $insert_stmt->execute();
+    error_log("saveOTP result: " . ($result ? 'SUCCESS' : 'FAILED'));
+    return $result;
 }
 
 /**
@@ -198,9 +225,11 @@ function verifyOTP($db, $user_id, $otp_code) {
         $user_stmt->bindParam(':user_id', $user_id);
         $user_stmt->execute();
         
+        error_log("OTP verified for user_id: $user_id");
         return true;
     }
     
+    error_log("OTP verification failed for user_id: $user_id");
     return false;
 }
 ?>
