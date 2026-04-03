@@ -41,10 +41,11 @@ if (isset($_COOKIE['remember_token']) && !Session::isLoggedIn()) {
         
         if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Set session
-            Session::set('user_id', $user['id']);
-            Session::set('id_number', $user['id_number']);
-            Session::set('full_name', $user['full_name']);
-            Session::set('role', $user['role']);
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['id_number'] = $user['id_number'];
+            $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['email'] = $user['email'];
             
             // Redirect to dashboard
             header('Location: ../dashboard.php');
@@ -100,10 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (password_verify($password, $user['password'])) {
                         // Set session
-                        Session::set('user_id', $user['id']);
-                        Session::set('id_number', $user['id_number']);
-                        Session::set('full_name', $user['full_name']);
-                        Session::set('role', $user['role']);
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['id_number'] = $user['id_number'];
+                        $_SESSION['full_name'] = $user['full_name'];
+                        $_SESSION['role'] = $user['role'];
+                        $_SESSION['email'] = $user['email'];
                         
                         // Handle Remember Me
                         if ($remember) {

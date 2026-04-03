@@ -24,11 +24,6 @@ try {
     $total_advisers = 28;
     $total_departments = 8;
 }
-
-// Check if user is logged in
-$is_logged_in = isset($_SESSION['user_id']);
-$full_name = $_SESSION['full_name'] ?? 'User';
-$role = $_SESSION['role'] ?? 'user';
 ?>
 
 <!DOCTYPE html>
@@ -42,46 +37,14 @@ $role = $_SESSION['role'] ?? 'user';
     <link rel="stylesheet" href="css/about.css?v=<?php echo time(); ?>">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="logo-group">
-            <a class="nav-logo" href="<?php echo $is_logged_in ? 'dashboard.php' : 'index.php'; ?>">
-                <img src="Images/kld logo.png" alt="KLD Logo">
-            </a>
-            <a class="logo-text" href="<?php echo $is_logged_in ? 'dashboard.php' : 'index.php'; ?>">
-                KLD Capstone Tracker
-            </a>
-        </div>
-
-        <div class="nav-links" id="navLinks">
-            <?php if($is_logged_in): ?>
-                <span class="welcome-text">Welcome, <?php echo htmlspecialchars($full_name); ?> (<?php echo ucfirst($role); ?>)</span>
-                <a href="auth/logout.php" class="btn-logout">
-                    <span class="material-symbols-outlined">logout</span>
-                    Logout
-                </a>
-            <?php else: ?>
-                <a href="auth/login.php" class="btn-login">Login</a>
-                <a href="auth/register.php" class="btn-register">Register</a>
-            <?php endif; ?>
-        </div>
-
-        <span id="hamburger-btn" class="material-symbols-outlined">menu</span>
-    </nav>
-
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <?php if($is_logged_in): ?>
-            <div class="mobile-menu-item">
-                <span class="material-symbols-outlined">person</span>
-                <span><?php echo htmlspecialchars($full_name); ?> (<?php echo ucfirst($role); ?>)</span>
-            </div>
-            <a href="auth/logout.php" class="mobile-menu-item logout">
-                <span class="material-symbols-outlined">logout</span>
-                Logout
-            </a>
-        <?php endif; ?>
-    </div>
+    <?php 
+    // Use dashboard-nav for logged-in users, otherwise use simple nav
+    if (isset($_SESSION['user_id'])) {
+        include 'includes/dashboard-nav.php';
+    } else {
+        include 'includes/public-nav.php';
+    }
+    ?>
     
     <div class="navbar-spacer"></div>
 
@@ -165,42 +128,5 @@ $role = $_SESSION['role'] ?? 'user';
         </div>
         <div>© <?php echo date('Y'); ?> KLD Innovatech</div>
     </footer>
-
-    <script>
-        // Mobile menu toggle
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const navLinks = document.getElementById('navLinks');
-        
-        if (hamburgerBtn && mobileMenu) {
-            hamburgerBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileMenu.classList.toggle('active');
-                if (window.innerWidth <= 640 && navLinks) {
-                    navLinks.classList.toggle('active');
-                }
-            });
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (mobileMenu && hamburgerBtn && !mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                if (window.innerWidth <= 640 && navLinks) {
-                    navLinks.classList.remove('active');
-                }
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 640 && navLinks) {
-                navLinks.classList.remove('active');
-            }
-            if (mobileMenu) {
-                mobileMenu.classList.remove('active');
-            }
-        });
-    </script>
 </body>
 </html>

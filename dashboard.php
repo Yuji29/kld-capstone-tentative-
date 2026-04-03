@@ -116,7 +116,6 @@ try {
 
     // Get upcoming deadlines with visibility rules applied
     if($role === 'student') {
-        // Students: only see deadlines where visibility_type = 'all' OR their ID is in visible_to_students
         $deadline_query = "SELECT * FROM deadlines 
                            WHERE is_active = 1 
                            AND deadline_date >= CURDATE()
@@ -148,7 +147,6 @@ try {
         $total_deadlines = $stmt_total->fetchColumn() ?: 0;
     } 
     elseif($role === 'adviser' || $role === 'admin') {
-        // Advisers and Admins: can see all deadlines
         $deadline_query = "SELECT * FROM deadlines 
                            WHERE is_active = 1 
                            AND deadline_date >= CURDATE()
@@ -161,7 +159,6 @@ try {
     
 } catch (PDOException $e) {
     error_log("Dashboard error: " . $e->getMessage());
-    // Keep default values (0) if error occurs
     $my_pending_count = $my_active_count = $my_completed_count = $my_total_count = 0;
 }
 
@@ -174,7 +171,6 @@ if($role === 'admin') {
     $deadlines_view_link = 'titles/deadlines.php';
 }
 
-// Pending count for adviser button
 $pending_total = $my_pending_count ?? 0;
 ?>
 <!DOCTYPE html>
