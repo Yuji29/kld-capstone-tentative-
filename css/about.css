@@ -44,34 +44,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== CUSTOM SCROLLBAR - MATCHING CONTACT PAGE ===== */
-/* WebKit browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 10px;
-    transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-dark);
-}
-
-/* Firefox */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) #f1f1f1;
-}
-
 /* ===== NAVIGATION STYLES ===== */
 .navbar {
     position: fixed;
@@ -931,10 +903,6 @@ body {
 }
 
 @media (max-width: 480px) {
-    .nav-logo img {
-        height: 2.8rem !important;
-    }
-
     .about-hero h1 {
         font-size: 1.8rem;
     }
@@ -975,12 +943,3 @@ body {
         font-size: 1.5rem;
     }
 }
-
-@media (max-width: 360px) {
-        .logo-text {
-            font-size: 1rem;
-        }
-        .nav-logo img {
-            height: 2.5rem !important;
-        }
-    }

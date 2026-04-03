@@ -538,6 +538,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 0%;
+    margin-top: -90px;
 }
 
 .how-hero h1 {
@@ -1055,10 +1056,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .nav-logo img {
-        height: 2.8rem !important;
-    }
-
     .how-hero h1 {
         font-size: 2rem;
     }
@@ -1103,12 +1100,3 @@ body {
         text-align: center;
     }
 }
-
-@media (max-width: 360px) {
-        .logo-text {
-            font-size: 1rem;
-        }
-        .nav-logo img {
-            height: 2.5rem !important;
-        }
-    }
