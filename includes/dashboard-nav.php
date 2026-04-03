@@ -468,7 +468,7 @@
             font-size: 1.1rem;
         }
         .nav-logo img {
-            height: 2.2rem;
+            height: 2.8rem !important;
         }
         .logo-group {
             max-width: 90%;
@@ -480,7 +480,7 @@
             font-size: 1rem;
         }
         .nav-logo img {
-            height: 2rem;
+            height: 2.5rem !important;
         }
     }
 </style>

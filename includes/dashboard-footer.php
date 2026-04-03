@@ -9,9 +9,9 @@
         <span>KLD Capstone Title Tracker</span>
     </div>
     <div class="footer-links">
-        <a href="../about.php">About</a>
-        <a href="../how-it-works.php">How it Works</a>
-        <a href="../contact.php">Contact</a>
+        <a href="/kld-capstone/about.php">About</a>
+        <a href="/kld-capstone/how-it-works.php">How it Works</a>
+        <a href="/kld-capstone/contact.php">Contact</a>
     </div>
     <div>© 2026 KLD Innovatech</div>
 </footer>
