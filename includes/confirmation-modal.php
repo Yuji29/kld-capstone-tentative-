@@ -1,16 +1,18 @@
+<?php
+?>
 <!-- Confirmation Modal Component -->
 <div id="confirmation-modal" class="modal-overlay" style="display: none;">
     <div class="modal-container">
         <div class="modal-header">
             <span class="material-symbols-outlined modal-icon" id="modal-icon">warning</span>
             <h3 id="modal-title">Confirm Action</h3>
-        </div>
+        </div> 
         <div class="modal-body">
             <p id="modal-message">Are you sure you want to proceed?</p>
         </div>
         <div class="modal-footer">
             <button class="modal-btn modal-cancel" id="modal-cancel">Cancel</button>
-            <a href="#" class="modal-btn modal-confirm" id="modal-confirm">Confirm</a>
+            <button class="modal-btn modal-confirm" id="modal-confirm">Confirm</button>
         </div>
     </div>
 </div>
@@ -161,21 +163,35 @@
 </style>
 
 <script>
+// Store callback globally
+let modalConfirmCallback = null;
+let modalConfirmUrl = null;
+
 // Modal functionality
 function showConfirmationModal(options) {
-    // Options can include: title, message, confirmUrl, confirmText, type (delete/submit)
     const modal = document.getElementById('confirmation-modal');
     const titleEl = document.getElementById('modal-title');
     const messageEl = document.getElementById('modal-message');
     const confirmBtn = document.getElementById('modal-confirm');
-    const cancelBtn = document.getElementById('modal-cancel');
     const iconEl = document.getElementById('modal-icon');
+    
+    // Reset callback
+    modalConfirmCallback = null;
+    modalConfirmUrl = null;
     
     // Set default values
     titleEl.textContent = options.title || 'Confirm Action';
     messageEl.innerHTML = options.message || 'Are you sure you want to proceed?';
-    confirmBtn.href = options.confirmUrl || '#';
     confirmBtn.textContent = options.confirmText || 'Confirm';
+    
+    // Store callback or URL
+    if (options.onConfirm && typeof options.onConfirm === 'function') {
+        modalConfirmCallback = options.onConfirm;
+        modalConfirmUrl = null;
+    } else if (options.confirmUrl) {
+        modalConfirmUrl = options.confirmUrl;
+        modalConfirmCallback = null;
+    }
     
     // Set icon based on type
     if (options.type === 'delete') {
@@ -198,11 +214,9 @@ function showConfirmationModal(options) {
     
     // Show modal
     modal.style.display = 'flex';
-    
-    // Prevent body scrolling
     document.body.style.overflow = 'hidden';
     
-    // Close modal when clicking outside
+    // Close when clicking outside
     modal.onclick = function(e) {
         if (e.target === modal) {
             closeModal();
@@ -214,23 +228,33 @@ function closeModal() {
     const modal = document.getElementById('confirmation-modal');
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
+    modalConfirmCallback = null;
+    modalConfirmUrl = null;
 }
+
+// Confirm button handler
+document.getElementById('modal-confirm').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    if (modalConfirmCallback) {
+        modalConfirmCallback();
+    } else if (modalConfirmUrl) {
+        window.location.href = modalConfirmUrl;
+    }
+    
+    closeModal();
+});
+
+// Cancel button handler
+document.getElementById('modal-cancel').addEventListener('click', function(e) {
+    e.preventDefault();
+    closeModal();
+});
 
 // Close with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal();
-    }
-});
-
-// Add cancel button functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const cancelBtn = document.getElementById('modal-cancel');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeModal();
-        });
     }
 });
 </script>
