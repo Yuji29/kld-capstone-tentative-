@@ -1,131 +1,190 @@
 <?php
 // includes/privacy-modals.php
-// Privacy Policy and Terms of Service Modals - Clean Professional Style
+// Privacy Policy and Terms of Service Modals - Styled like Edit User Modal
 ?>
 
 <!-- Privacy Policy Modal -->
-<div class="modal-overlay" id="privacyModal">
-    <div class="modal-card">
-        <!-- Close button -->
-        <button class="modal-close" onclick="closePrivacyModal()">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-        
-        <!-- Modal header -->
-        <div class="modal-header">
-            <span class="material-symbols-outlined modal-header-icon">shield</span>
-            <h2>Privacy Policy</h2>
-            <p class="modal-date">Last updated: February 26, 2026</p>
+<div class="modal" id="privacyModal">
+    <div class="modal-content">
+        <div class="modal-header-custom">
+            <span class="material-symbols-outlined">privacy_tip</span>
+            <h3>Privacy Policy</h3>
         </div>
         
-        <!-- Modal body -->
-        <div class="modal-body">
+        <div class="modal-body-custom">
+            <div class="modal-date">Last updated: April 3, 2026</div>
+            
             <div class="policy-section">
-                <h3>Introduction</h3>
+                <h4>Introduction</h4>
                 <p>Welcome to KLD Capstone Tracker. We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information.</p>
             </div>
             
             <div class="policy-section">
-                <h3>Information We Collect</h3>
+                <h4>Information We Collect</h4>
                 <ul>
-                    <li><span class="list-title">Full Name & ID Number:</span> To identify you within the system</li>
-                    <li><span class="list-title">Email Address:</span> For communication and password recovery</li>
-                    <li><span class="list-title">Department:</span> To categorize your academic affiliation</li>
-                    <li><span class="list-title">Capstone Titles & Papers:</span> Your research submissions</li>
+                    <li><strong>Full Name & ID Number:</strong> To identify you within the system</li>
+                    <li><strong>Email Address:</strong> For communication, password recovery, and account verification</li>
+                    <li><strong>Department:</strong> To categorize your academic affiliation</li>
+                    <li><strong>Capstone Titles & Papers:</strong> Your research submissions and uploaded documents</li>
+                    <li><strong>Profile Picture:</strong> Optional image to personalize your account</li>
+                    <li><strong>IP Address & User Agent:</strong> For security and activity logging</li>
                 </ul>
             </div>
             
             <div class="policy-section">
-                <h3>How We Use Your Information</h3>
+                <h4>How We Use Your Information</h4>
                 <ul>
                     <li>Create and manage your account</li>
                     <li>Facilitate capstone title submissions and reviews</li>
                     <li>Connect students with advisers</li>
                     <li>Communicate important updates and deadlines</li>
+                    <li>Send email verification codes (OTP) to confirm your identity</li>
+                    <li>Track active sessions to detect unauthorized access</li>
                 </ul>
             </div>
             
             <div class="policy-section">
-                <h3>Data Security</h3>
-                <p>We implement appropriate security measures including password hashing, secure HTTPS connection, and access controls to protect your personal information.</p>
+                <h4>Email Verification (OTP)</h4>
+                <p>To ensure the security of your account, we send a One-Time Password (OTP) verification code to your registered email address during registration and login. This helps us confirm your identity and prevent unauthorized access.</p>
             </div>
             
             <div class="policy-section">
-                <h3>Contact Us</h3>
+                <h4>File Uploads</h4>
+                <p>When you upload capstone papers, abstracts, or profile pictures, these files are stored securely on our servers. Accepted file formats include PDF, DOC, DOCX, JPG, PNG, and GIF. Files are retained for the duration of your account and deleted upon account termination.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Session Management</h4>
+                <p>We track active sessions to help you monitor where your account is logged in. You can view and terminate active sessions from your account settings. Session data includes device type, IP address, location, and last activity time.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Data Security</h4>
+                <p>We implement appropriate security measures including password hashing, secure HTTPS connection, OTP verification, session tracking, and access controls to protect your personal information.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Your Rights</h4>
+                <ul>
+                    <li>Access and update your personal information</li>
+                    <li>Request deletion of your account and data</li>
+                    <li>View and manage active sessions</li>
+                    <li>Opt out of email notifications</li>
+                </ul>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Contact Us</h4>
                 <p>For questions about this privacy policy, please contact:</p>
                 <p class="contact-email">kldcapstonetracker@gmail.com</p>
             </div>
         </div>
         
-        <!-- Modal footer -->
-        <div class="modal-footer">
-            <button class="modal-btn" onclick="closePrivacyModal()">I Understand</button>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-cancel" onclick="closePrivacyModal()">Close</button>
+            <button type="button" class="btn-save" onclick="closePrivacyModal()">
+                <span class="material-symbols-outlined">check_circle</span>
+                I Understand
+            </button>
         </div>
     </div>
 </div>
 
 <!-- Terms of Service Modal -->
-<div class="modal-overlay" id="termsModal">
-    <div class="modal-card">
-        <!-- Close button -->
-        <button class="modal-close" onclick="closeTermsModal()">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-        
-        <!-- Modal header -->
-        <div class="modal-header">
-            <span class="material-symbols-outlined modal-header-icon">description</span>
-            <h2>Terms of Service</h2>
-            <p class="modal-date">Last updated: February 26, 2026</p>
+<div class="modal" id="termsModal">
+    <div class="modal-content">
+        <div class="modal-header-custom">
+            <span class="material-symbols-outlined">gavel</span>
+            <h3>Terms of Service</h3>
         </div>
         
-        <!-- Modal body -->
-        <div class="modal-body">
+        <div class="modal-body-custom">
+            <div class="modal-date">Last updated: April 3, 2026</div>
+            
             <div class="policy-section">
-                <h3>Acceptance of Terms</h3>
+                <h4>Acceptance of Terms</h4>
                 <p>By accessing or using KLD Capstone Tracker, you agree to be bound by these Terms of Service.</p>
             </div>
             
             <div class="policy-section">
-                <h3>User Accounts</h3>
+                <h4>User Accounts</h4>
                 <ul>
                     <li>Provide accurate and complete information</li>
                     <li>Keep your login credentials secure</li>
                     <li>Notify us of any unauthorized access</li>
                     <li>You are responsible for all activities under your account</li>
+                    <li>Email verification (OTP) is required to activate your account</li>
                 </ul>
             </div>
             
             <div class="policy-section">
-                <h3>Acceptable Use</h3>
+                <h4>Account Security</h4>
+                <ul>
+                    <li>OTP verification codes are valid for 15 minutes</li>
+                    <li>You can view and terminate active sessions from your account settings</li>
+                    <li>Report any suspicious activity immediately</li>
+                    <li>Use a strong, unique password for your account</li>
+                </ul>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Acceptable Use</h4>
                 <ul>
                     <li>Submit only original work (no plagiarism)</li>
                     <li>Do not impersonate other users</li>
                     <li>Do not attempt to bypass security measures</li>
                     <li>Respect academic integrity policies</li>
+                    <li>Do not upload malicious files or viruses</li>
                 </ul>
             </div>
             
             <div class="policy-section">
-                <h3>Intellectual Property</h3>
+                <h4>File Upload Guidelines</h4>
+                <ul>
+                    <li>Maximum file size: 25MB per upload</li>
+                    <li>Allowed formats: PDF, DOC, DOCX, TXT, JPG, PNG, GIF</li>
+                    <li>You retain ownership of your uploaded files</li>
+                    <li>Files may be reviewed by advisers and administrators</li>
+                </ul>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Intellectual Property</h4>
                 <p>You retain ownership of your capstone titles and uploaded papers. By submitting content, you grant us license to display and manage your submissions for academic purposes.</p>
             </div>
             
             <div class="policy-section">
-                <h3>Contact</h3>
+                <h4>Session Management</h4>
+                <p>You are responsible for managing your active sessions. Terminate sessions you don't recognize. We reserve the right to terminate suspicious sessions to protect your account.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Termination</h4>
+                <p>We may terminate or suspend your account immediately, without prior notice, for conduct that violates these Terms or poses a security risk.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Changes to Terms</h4>
+                <p>We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.</p>
+            </div>
+            
+            <div class="policy-section">
+                <h4>Contact</h4>
                 <p>For questions about these terms, contact the system administrator:</p>
                 <p class="contact-email">kldcapstonetracker@gmail.com</p>
             </div>
         </div>
         
-        <!-- Modal footer -->
-        <div class="modal-footer">
-            <button class="modal-btn" onclick="closeTermsModal()">I Understand</button>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-cancel" onclick="closeTermsModal()">Close</button>
+            <button type="button" class="btn-save" onclick="closeTermsModal()">
+                <span class="material-symbols-outlined">check_circle</span>
+                I Understand
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Modal JavaScript -->
 <script>
     // Open Privacy Policy Modal
     function openPrivacyModal() {
@@ -176,10 +235,9 @@
     });
 </script>
 
-<!-- Modal Styles - Clean Professional -->
 <style>
-    /* Modal Overlay */
-    .modal-overlay {
+    /* Modal Styles - Matching Edit User Modal */
+    .modal {
         display: none;
         position: fixed;
         top: 0;
@@ -193,24 +251,24 @@
         align-items: center;
         padding: 20px;
     }
-    
-    .modal-overlay.active {
+
+    .modal.active {
         display: flex;
     }
-    
-    /* Modal Card */
-    .modal-card {
+
+    .modal-content {
         background: white;
         width: 100%;
-        max-width: 550px;
-        border-radius: 28px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        position: relative;
+        max-width: 600px;
+        max-height: 85vh;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
         animation: modalFadeIn 0.3s ease;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
-        border: 1px solid #e2efdf;
     }
-    
+
     @keyframes modalFadeIn {
         from {
             opacity: 0;
@@ -221,222 +279,209 @@
             transform: scale(1) translateY(0);
         }
     }
-    
-    /* Close button */
-    .modal-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #f0f7f0;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: var(--primary-color);
-        z-index: 10;
-    }
-    
-    .modal-close:hover {
-        background: var(--primary-color);
-        color: white;
-        transform: rotate(90deg);
-    }
-    
-    .modal-close .material-symbols-outlined {
-        font-size: 20px;
-    }
-    
-    /* Modal header */
-    .modal-header {
-        text-align: center;
-        padding: 40px 30px 20px;
-        border-bottom: 2px solid #e2efdf;
-    }
-    
-    .modal-header-icon {
-        font-size: 48px;
-        color: var(--primary-color);
-        background: #e9f2e7;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-    }
-    
-    .modal-header h2 {
-        color: var(--primary-dark);
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-    
-    .modal-date {
-        color: #4d6a4a;
-        font-size: 0.85rem;
-        opacity: 0.8;
-        margin-bottom: 0;
-    }
-    
-    /* Modal body */
-    .modal-body {
+
+    /* Modal Header - Green Gradient */
+    .modal-header-custom {
+        background: linear-gradient(135deg, var(--primary-color, #2D5A27) 0%, var(--primary-dark, #1e3d1a) 100%);
         padding: 20px 30px;
-        max-height: 350px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: none;
+    }
+
+    .modal-header-custom .material-symbols-outlined {
+        font-size: 28px;
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px;
+        border-radius: 12px;
+    }
+
+    .modal-header-custom h3 {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Modal Body */
+    .modal-body-custom {
+        padding: 25px 30px;
         overflow-y: auto;
-        scrollbar-width: thin;
+        flex: 1;
     }
-    
-    /* Custom scrollbar */
-    .modal-body::-webkit-scrollbar {
-        width: 6px;
+
+    .modal-date {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2efdf;
     }
-    
-    .modal-body::-webkit-scrollbar-track {
-        background: #e2efdf;
-        border-radius: 10px;
-    }
-    
-    .modal-body::-webkit-scrollbar-thumb {
-        background: var(--primary-color);
-        border-radius: 10px;
-    }
-    
-    .modal-body::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-dark);
-    }
-    
-    /* Policy sections */
+
+    /* Policy Sections */
     .policy-section {
         margin-bottom: 25px;
     }
-    
-    .policy-section h3 {
-        color: var(--primary-color);
-        font-size: 1.1rem;
+
+    .policy-section h4 {
+        color: var(--primary-dark, #1e3d1a);
+        font-size: 1rem;
         font-weight: 600;
         margin-bottom: 10px;
-        position: relative;
-        padding-left: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    
-    .policy-section h3::before {
+
+    .policy-section h4::before {
         content: '';
-        position: absolute;
-        left: 0;
-        top: 4px;
-        bottom: 4px;
         width: 4px;
-        background: var(--primary-color);
+        height: 18px;
+        background: var(--primary-color, #2D5A27);
         border-radius: 2px;
     }
-    
+
     .policy-section p {
-        color: #4d6a4a;
+        color: #555;
         font-size: 0.9rem;
         line-height: 1.6;
-        margin-bottom: 0;
+        margin: 0;
     }
-    
+
     .policy-section ul {
-        margin: 5px 0 0 0;
+        margin: 5px 0 0 20px;
         padding: 0;
-        list-style: none;
     }
-    
+
     .policy-section li {
-        color: #4d6a4a;
+        color: #555;
         font-size: 0.9rem;
         line-height: 1.6;
-        margin-bottom: 8px;
-        position: relative;
-        padding-left: 20px;
+        margin-bottom: 6px;
     }
-    
-    .policy-section li::before {
-        content: "•";
-        color: var(--primary-color);
-        font-weight: bold;
-        position: absolute;
-        left: 5px;
+
+    .policy-section li strong {
+        color: var(--primary-dark, #1e3d1a);
     }
-    
-    .list-title {
-        font-weight: 600;
-        color: var(--primary-dark);
-    }
-    
+
     .contact-email {
-        color: var(--primary-color);
+        color: var(--primary-color, #2D5A27);
         font-weight: 500;
         margin-top: 5px;
     }
-    
-    /* Modal footer */
-    .modal-footer {
-        padding: 20px 30px 30px;
-        text-align: center;
-        border-top: 2px solid #e2efdf;
+
+    /* Modal Footer */
+    .modal-footer-custom {
+        padding: 20px 30px;
+        border-top: 1px solid #e2efdf;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        background: #fafbfa;
     }
-    
-    .modal-btn {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 12px 35px;
-        border-radius: 50px;
+
+    .modal-footer-custom .btn-cancel {
+        padding: 10px 24px;
+        border-radius: 40px;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(45, 90, 39, 0.3);
-        min-width: 160px;
+        background: transparent;
+        border: 2px solid #ccc;
+        color: #666;
     }
-    
-    .modal-btn:hover {
-        background: var(--primary-dark);
+
+    .modal-footer-custom .btn-cancel:hover {
+        background: #f0f0f0;
+        border-color: #999;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(45, 90, 39, 0.4);
     }
-    
-    /* Mobile responsive */
+
+    .modal-footer-custom .btn-save {
+        padding: 10px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--primary-color, #2D5A27);
+        border: none;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-footer-custom .btn-save:hover {
+        background: var(--primary-dark, #1e3d1a);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(45, 90, 39, 0.3);
+    }
+
+    .modal-footer-custom .btn-save .material-symbols-outlined {
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .modal-footer-custom .btn-save:hover .material-symbols-outlined {
+        transform: rotate(360deg);
+    }
+
+    /* Custom Scrollbar */
+    .modal-body-custom::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body-custom::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .modal-body-custom::-webkit-scrollbar-thumb {
+        background: var(--primary-color, #2D5A27);
+        border-radius: 10px;
+    }
+
+    .modal-body-custom::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-dark, #1e3d1a);
+    }
+
+    /* Responsive */
     @media (max-width: 600px) {
-        .modal-card {
-            border-radius: 24px;
+        .modal-content {
+            max-width: 95%;
+            max-height: 90vh;
         }
-        
-        .modal-header {
-            padding: 30px 20px 15px;
-        }
-        
-        .modal-header-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 36px;
-        }
-        
-        .modal-header h2 {
-            font-size: 1.5rem;
-        }
-        
-        .modal-body {
+
+        .modal-header-custom {
             padding: 15px 20px;
-            max-height: 300px;
         }
-        
-        .modal-footer {
-            padding: 15px 20px 25px;
+
+        .modal-header-custom h3 {
+            font-size: 1.2rem;
         }
-        
-        .modal-btn {
-            padding: 10px 30px;
-            font-size: 0.9rem;
+
+        .modal-header-custom .material-symbols-outlined {
+            font-size: 24px;
+            padding: 6px;
+        }
+
+        .modal-body-custom {
+            padding: 20px;
+        }
+
+        .modal-footer-custom {
+            padding: 15px 20px;
+            flex-direction: column;
+        }
+
+        .modal-footer-custom .btn-cancel,
+        .modal-footer-custom .btn-save {
+            width: 100%;
+            justify-content: center;
         }
     }
 </style>
