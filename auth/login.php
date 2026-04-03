@@ -1,6 +1,7 @@
 <?php
 require_once '../config/session.php';
 require_once '../config/database.php';
+require_once '../includes/email-helper.php';
 
 Session::start();
 
@@ -81,6 +82,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute();
                 
                 if ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    if (isset($user['email_verified']) && $user['email_verified'] == 0 && $user['role'] !== 'admin') {
+                        // Store user info for verification
+                        $_SESSION['pending_verification'] = true;
+                        $_SESSION['pending_user_id'] = $user['id'];
+                        
+                        // Generate and send new OTP
+                        $otp_code = generateOTP();
+                        saveOTP($db, $user['id'], $user['email'], $otp_code);
+                        sendOTPEmail($user['email'], $user['full_name'], $otp_code);
+                        
+                        // Redirect to verification page with message
+                        $_SESSION['flash_message'] = "Please verify your email address before logging in. A new verification code has been sent to your email.";
+                        $_SESSION['flash_type'] = "warning";
+                        header('Location: verify-otp.php');
+                        exit;
+                    }
                     if (password_verify($password, $user['password'])) {
                         // Set session
                         Session::set('user_id', $user['id']);

@@ -5,6 +5,7 @@ date_default_timezone_set('Asia/Manila');
 
 require_once '../config/database.php';
 require_once '../config/session.php';
+require_once '../includes/email-helper.php';
 
 Session::start();
 
@@ -19,7 +20,6 @@ if (Session::isLoggedIn()) {
 }
 
 $error = '';
-$success = '';
 
 // Get database connection
 $database = new Database();
@@ -77,6 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Password must contain at least one number";
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = "Invalid email format";
+        } elseif (!preg_match('/@kld\.edu\.ph$/i', $email)) {
+            $allowed_personal = ['yujipelegrino@gmail.com'];
+            if (!in_array($email, $allowed_personal)) {
+                $error = "Only @kld.edu.ph email addresses are allowed to register. Please use your school email.";
+            }
         } elseif (!$agree_privacy) {
             $error = "You must agree to the Privacy Policy and Terms of Service to register";
         } else {
@@ -121,9 +126,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $insert_stmt->bindParam(':user_agent', $user_agent);
                     
                     if ($insert_stmt->execute()) {
-                        $success = "Registration successful! You can now login.";
-                        // Clear form data on success
-                        $full_name = $id_number = $email = $department = '';
+                        // Get the new user's ID
+                        $new_user_id = $db->lastInsertId();
+                        
+                        // Generate and save OTP
+                        $otp_code = generateOTP();
+                        saveOTP($db, $new_user_id, $email, $otp_code);
+                        
+                        // Send OTP email
+                        sendOTPEmail($email, $full_name, $otp_code);
+                        
+                        // Store in session for verification page
+                        $_SESSION['pending_verification'] = true;
+                        $_SESSION['pending_user_id'] = $new_user_id;
+                        
+                        // Redirect to verification page
+                        header('Location: verify-otp.php');
+                        exit();
                     } else {
                         $error_info = $insert_stmt->errorInfo();
                         error_log("Registration failed: " . $error_info[2]);
@@ -165,10 +184,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if($error): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
-            <?php endif; ?>
-
-            <?php if($success): ?>
-                <div class="success"><?php echo htmlspecialchars($success); ?></div>
             <?php endif; ?>
 
             <form method="POST">
