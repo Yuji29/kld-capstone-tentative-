@@ -1122,6 +1122,10 @@ body {
 }
 
 @media (max-width: 480px) {
+    .nav-logo img {
+        height: 2.8rem !important;
+    }
+
     .contact-hero {
         padding: 60px 5%;
     }
@@ -1174,3 +1178,12 @@ body {
         font-size: 1.5rem;
     }
 }
+
+@media (max-width: 360px) {
+        .logo-text {
+            font-size: 1rem;
+        }
+        .nav-logo img {
+            height: 2.5rem !important;
+        }
+    }
