@@ -99,8 +99,8 @@ $papers_stmt = $db->prepare($papers_query);
 $papers_stmt->execute([$title_id]);
 $papers = $papers_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get comments/feedback for this title
-$comments_query = "SELECT c.*, u.full_name as commenter_name, u.role as commenter_role
+// Get comments/feedback for this title with user avatars
+$comments_query = "SELECT c.*, u.full_name as commenter_name, u.role as commenter_role, u.avatar as commenter_avatar
                    FROM comments c
                    LEFT JOIN users u ON c.user_id = u.id
                    WHERE c.title_id = ?
@@ -136,16 +136,14 @@ if(isset($_POST['add_comment'])) {
     }
 }
 
-// Handle delete comment - Using GET for modal compatibility
+// Handle delete comment
 if(isset($_GET['delete_comment']) && isset($_GET['comment_id']) && isset($_GET['token'])) {
-    // Verify token
     if($_GET['token'] !== $_SESSION['csrf_token']) {
         $error = "Invalid security token.";
     } else {
         $comment_id = filter_var($_GET['comment_id'], FILTER_VALIDATE_INT);
         
         if($comment_id) {
-            // Check if user owns this comment or is admin
             $check_query = "SELECT user_id FROM comments WHERE id = ?";
             $check_stmt = $db->prepare($check_query);
             $check_stmt->execute([$comment_id]);
@@ -168,16 +166,14 @@ if(isset($_GET['delete_comment']) && isset($_GET['comment_id']) && isset($_GET['
     }
 }
 
-// Handle delete paper - Using GET for modal compatibility
+// Handle delete paper
 if(isset($_GET['delete_paper']) && isset($_GET['paper_id']) && isset($_GET['token'])) {
-    // Verify token
     if($_GET['token'] !== $_SESSION['csrf_token']) {
         $error = "Invalid security token.";
     } else {
         $paper_id = filter_var($_GET['paper_id'], FILTER_VALIDATE_INT);
         
         if($paper_id) {
-            // Get paper info to check permissions and file path
             $paper_query = "SELECT p.*, ct.student_id, ct.title 
                            FROM papers p
                            JOIN capstone_titles ct ON p.title_id = ct.id
@@ -187,7 +183,6 @@ if(isset($_GET['delete_paper']) && isset($_GET['paper_id']) && isset($_GET['toke
             $paper = $paper_stmt->fetch(PDO::FETCH_ASSOC);
             
             if($paper) {
-                // Check permissions
                 $can_delete = false;
                 if($role === 'admin') {
                     $can_delete = true;
@@ -198,13 +193,11 @@ if(isset($_GET['delete_paper']) && isset($_GET['paper_id']) && isset($_GET['toke
                 }
                 
                 if($can_delete) {
-                    // Delete the file from server
                     $file_path = $paper['file_path'];
                     if(file_exists($file_path)) {
                         unlink($file_path);
                     }
                     
-                    // Delete from database
                     $delete_query = "DELETE FROM papers WHERE id = ?";
                     $delete_stmt = $db->prepare($delete_query);
                     
@@ -237,6 +230,30 @@ if(isset($_SERVER['HTTP_REFERER'])) {
     }
 }
 
+// Helper function to get user initials
+function getUserInitials($name) {
+    $parts = explode(' ', $name);
+    if (count($parts) >= 2) {
+        return strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1));
+    }
+    return strtoupper(substr($name, 0, 2));
+}
+
+// Helper function to get avatar URL
+function getAvatarUrl($avatar_path) {
+    if (empty($avatar_path)) {
+        return '';
+    }
+    // If it's already a full URL
+    if (filter_var($avatar_path, FILTER_VALIDATE_URL)) {
+        return $avatar_path;
+    }
+    // Remove leading slash if exists
+    $avatar_path = ltrim($avatar_path, '/');
+    // Add the base path
+    return '/kld-capstone/' . $avatar_path;
+}
+
 // Set variables for navigation include
 $full_name = $_SESSION['full_name'] ?? 'User';
 $role = $_SESSION['role'] ?? 'user';
@@ -253,16 +270,13 @@ $role = $_SESSION['role'] ?? 'user';
     <link rel="stylesheet" href="../css/titles/view.css?v=<?php echo time(); ?>">
 </head>
 <body>
-    <!-- Background Animation Elements -->
     <div class="zen-bg-element"></div>
     <div class="zen-bg-element"></div>
     <div class="zen-bg-element"></div>
 
-    <!-- Include Navigation -->
     <?php include '../includes/dashboard-nav.php'; ?>
 
     <div class="browse-container">
-        <!-- Header -->
         <div class="header">
             <div>
                 <h1>Capstone Title Details</h1>
@@ -270,7 +284,6 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
         </div>
 
-        <!-- Messages -->
         <?php if($message): ?>
             <div class="message">
                 <span class="material-symbols-outlined">check_circle</span>
@@ -285,11 +298,8 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
         <?php endif; ?>
 
-        <!-- Main Content Grid -->
         <div class="view-grid">
-            <!-- Left Column - Title Details -->
             <div class="left-column">
-                <!-- Title Card -->
                 <div class="title-card">
                     <div class="card-header">
                         <div class="title-badges">
@@ -309,7 +319,6 @@ $role = $_SESSION['role'] ?? 'user';
                                 </a>
                             <?php endif; ?>
         
-                            <!-- Student Edit Button for Revisions - Now matches admin style -->
                             <?php if($role === 'student' && $title['status'] === 'revisions'): ?>
                                 <a href="edit.php?id=<?php echo $title_id; ?>" class="btn-edit" style="background: #fd7e14; border-color: #fd7e14; color: white;">
                                     <span class="material-symbols-outlined">edit_note</span>
@@ -396,7 +405,7 @@ $role = $_SESSION['role'] ?? 'user';
                     <?php endif; ?>
                 </div>
 
-                <!-- Comments Section -->
+                <!-- Comments Section with User Avatars -->
                 <div class="title-card">
                     <div class="card-header">
                         <h2>
@@ -406,7 +415,6 @@ $role = $_SESSION['role'] ?? 'user';
                         <span class="item-count"><?php echo count($comments); ?> comments</span>
                     </div>
 
-                    <!-- Add Comment Form -->
                     <form method="POST" class="comment-form">
                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         
@@ -422,7 +430,6 @@ $role = $_SESSION['role'] ?? 'user';
                         </div>
                     </form>
 
-                    <!-- Comments List -->
                     <div class="comments-list">
                         <?php if(empty($comments)): ?>
                             <div class="empty-message">
@@ -431,11 +438,27 @@ $role = $_SESSION['role'] ?? 'user';
                             </div>
                         <?php else: ?>
                             <?php foreach($comments as $comment): ?>
+                                <?php
+                                // Get user avatar and initials
+                                $commenter_avatar = $comment['commenter_avatar'] ?? '';
+                                $commenter_initials = getUserInitials($comment['commenter_name']);
+                                $avatar_url = getAvatarUrl($commenter_avatar);
+                                ?>
                                 <div class="comment-item">
                                     <div class="comment-avatar">
-                                        <span class="material-symbols-outlined">
-                                            <?php echo $comment['commenter_role'] === 'adviser' ? 'school' : 'person'; ?>
-                                        </span>
+                                        <?php if(!empty($commenter_avatar)): ?>
+                                            <img src="<?php echo $avatar_url; ?>" 
+                                                 alt="Avatar" 
+                                                 class="comment-avatar-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="comment-avatar-initials" style="background: <?php echo $comment['commenter_role'] === 'adviser' ? '#2D5A27' : '#6c757d'; ?>; display: none;">
+                                                <?php echo $commenter_initials; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="comment-avatar-initials" style="background: <?php echo $comment['commenter_role'] === 'adviser' ? '#2D5A27' : '#6c757d'; ?>;">
+                                                <?php echo $commenter_initials; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="comment-content">
                                         <div class="comment-header">
@@ -484,7 +507,6 @@ $role = $_SESSION['role'] ?? 'user';
                     </div>
 
                     <?php 
-                    // Determine if user can upload papers
                     $can_upload = false;
                     if($role === 'admin') {
                         $can_upload = true;
@@ -552,7 +574,6 @@ $role = $_SESSION['role'] ?? 'user';
                                             <span class="material-symbols-outlined">download</span>
                                         </a>
                                         <?php 
-                                        // Check if user can delete this paper
                                         $can_delete_paper = false;
                                         if($role === 'admin') {
                                             $can_delete_paper = true;
@@ -588,14 +609,10 @@ $role = $_SESSION['role'] ?? 'user';
         </div> 
     </div>
 
-    <!-- Include Footer -->
     <?php include '../includes/dashboard-footer.php'; ?>
-
-    <!-- Include Confirmation Modal -->
     <?php include '../includes/confirmation-modal.php'; ?>
 
     <script>
-        // Mobile menu toggle
         document.getElementById('hamburger-btn')?.addEventListener('click', function() {
             document.getElementById('mobileMenu').classList.toggle('active');
         });

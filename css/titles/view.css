@@ -242,7 +242,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* FIX: Limit badge width and truncate if needed */
 .category-badge {
     padding: 6px 15px;
     border-radius: 30px;
@@ -480,39 +479,63 @@ body {
     border: 1px solid #e2efdf;
 }
 
+/* Comment Avatar - Fixed spacing */
 .comment-avatar {
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.comment-avatar-img {
     width: 40px;
     height: 40px;
-    background: #e9f2e7;
-    border-radius: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-}
-
-.comment-avatar .material-symbols-outlined {
-    color: var(--primary-color);
-    font-size: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
 }
 
 .comment-content {
     flex: 1;
-    min-width: 0; /* Allow content to shrink */
+    min-width: 0;
 }
 
+/* Comment Header - Fixed alignment */
 .comment-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    margin-bottom: 5px;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.comment-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.comment-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .comment-header strong {
     color: var(--primary-dark);
     font-size: 0.95rem;
-    word-break: break-word;
+    font-weight: 600;
 }
 
 .role-badge {
@@ -541,14 +564,40 @@ body {
 .comment-date {
     color: #999;
     font-size: 0.75rem;
-    margin-left: auto;
+}
+
+/* Delete comment button - Better alignment */
+.btn-delete-comment {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
     flex-shrink: 0;
+    text-decoration: none;
+}
+
+.btn-delete-comment:hover {
+    color: var(--danger-color);
+    background: #fee7e7;
+}
+
+.btn-delete-comment .material-symbols-outlined {
+    font-size: 18px;
 }
 
 .comment-content p {
     color: #555;
     font-size: 0.9rem;
     line-height: 1.6;
+    margin-top: 8px;
     word-break: break-word;
 }
 
@@ -593,7 +642,7 @@ body {
 
 .paper-info {
     flex: 1;
-    min-width: 0; /* Allow content to shrink */
+    min-width: 0;
 }
 
 .paper-info h4 {
@@ -705,69 +754,6 @@ body {
     font-size: 0.95rem;
 }
 
-/* Comment Delete Button */
-.btn-delete-comment {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #999;
-    display: inline-flex;
-    align-items: center;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    margin-left: auto;
-    text-decoration: none;
-}
-
-.btn-delete-comment:hover {
-    color: var(--danger-color);
-    background: #fee7e7;
-}
-
-.btn-delete-comment .material-symbols-outlined {
-    font-size: 18px;
-}
-
-/* Ensure comment header has space for delete button */
-.comment-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 5px;
-    width: 100%;
-}
-
-.comment-date {
-    color: #999;
-    font-size: 0.75rem;
-    margin-right: auto;
-}
-
-.comment-item.system {
-    background: #f8f9fa;
-    border-left: 4px solid var(--primary-color);
-}
-
-.comment-item.system .comment-header {
-    background: transparent;
-}
-
-.comment-item.system .comment-body {
-    font-style: italic;
-    color: var(--primary-dark);
-}
-
-.comment-item.system::before {
-    content: '🤖';
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 20px;
-    opacity: 0.3;
-}
-
 .upload-disabled-message {
     background: #fff3cd;
     border-left: 4px solid #ffc107;
@@ -798,49 +784,15 @@ body {
     flex-wrap: wrap;
 }
 
-/* Base button style for all edit buttons */
-.btn-edit {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-decoration: none;
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-    background: transparent;
-    transition: all 0.3s ease;
-}
-
-.btn-edit:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(45, 90, 39, 0.3);
-}
-
+/* Icon spin animations */
+.btn-primary .material-symbols-outlined,
 .btn-edit .material-symbols-outlined {
-    font-size: 18px;
     transition: transform 0.5s ease;
 }
 
+.btn-primary:hover .material-symbols-outlined,
 .btn-edit:hover .material-symbols-outlined {
     transform: rotate(360deg);
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .header-actions {
-        width: 100%;
-        flex-direction: column;
-    }
-    
-    .btn-edit {
-        width: 100%;
-        justify-content: center;
-    }
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -926,7 +878,22 @@ body {
         word-break: break-word;
         line-height: 1.4;
     }
-
+    
+    /* Comment responsive fixes */
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .comment-header-right {
+        margin-top: 5px;
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .comment-date {
+        font-size: 0.7rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -969,18 +936,12 @@ body {
         flex-wrap: wrap;
     }
     
-    .comment-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .comment-header-left {
+        flex-wrap: wrap;
     }
     
-    .comment-date {
-        margin-left: 0;
-    }
-    
-    .btn-delete-comment {
-        margin-left: 0;
-        align-self: flex-end;
+    .comment-header-right {
+        justify-content: flex-start;
     }
     
     .paper-item {
@@ -1019,32 +980,4 @@ body {
     .btn-delete {
         width: 100%;
     }
-}
-
-@media (max-width: 768px) {
-    /* ... existing styles ... */
-    
-    .meta-item {
-        align-items: flex-start;
-    }
-    
-    .meta-item div {
-        max-width: calc(100% - 50px); /* Account for icon width + gap */
-    }
-    
-    .meta-item p {
-        font-size: 0.95rem;
-        line-height: 1.4;
-    }
-}
-
-/* Icon spin animations */
-.btn-primary .material-symbols-outlined,
-.btn-edit .material-symbols-outlined {
-    transition: transform 0.5s ease;
-}
-
-.btn-primary:hover .material-symbols-outlined,
-.btn-edit:hover .material-symbols-outlined {
-    transform: rotate(360deg);
 }
