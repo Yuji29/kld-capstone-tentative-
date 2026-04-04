@@ -230,6 +230,20 @@ if(isset($_SERVER['HTTP_REFERER'])) {
     }
 }
 
+// Helper function to get base URL
+function getBaseUrl() {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    
+    // Check if running locally (XAMPP with subfolder)
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        return $protocol . $host . '/kld-capstone';
+    }
+    
+    // Production (root domain)
+    return $protocol . $host;
+}
+
 // Helper function to get user initials
 function getUserInitials($name) {
     $parts = explode(' ', $name);
@@ -250,8 +264,8 @@ function getAvatarUrl($avatar_path) {
     }
     // Remove leading slash if exists
     $avatar_path = ltrim($avatar_path, '/');
-    // Add the base path
-    return '/kld-capstone/' . $avatar_path;
+    // Add the base path dynamically
+    return getBaseUrl() . '/' . $avatar_path;
 }
 
 // Set variables for navigation include
