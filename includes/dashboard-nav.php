@@ -126,6 +126,40 @@ if (count($name_parts) >= 2) {
         box-sizing: border-box;
     }
 
+    /* ===== ANIMATIONS ===== */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes dropdownFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* ===== NAVIGATION STYLES ===== */
     .navbar {
         position: fixed;
@@ -141,6 +175,11 @@ if (count($name_parts) >= 2) {
         align-items: center;
         justify-content: space-between;
         min-height: 80px;
+        transition: all 0.3s ease;
+    }
+
+    .navbar:hover {
+        border-bottom-color: #4CAF50;
     }
 
     @media (max-width: 768px) {
@@ -156,9 +195,18 @@ if (count($name_parts) >= 2) {
         gap: 0.75rem;
     }
 
+    /* Logo with animations */
     .nav-logo img {
         height: 2.5rem;
         width: auto;
+        flex-shrink: 0;
+        filter: brightness(1.1);
+        transition: transform 0.3s ease;
+        animation: slideInLeft 0.6s ease;
+    }
+
+    .nav-logo:hover img {
+        transform: scale(1.1) rotate(5deg);
     }
 
     .logo-text {
@@ -167,6 +215,29 @@ if (count($name_parts) >= 2) {
         font-weight: 600;
         font-size: 1.3rem;
         text-decoration: none;
+        position: relative;
+        padding-bottom: 5px;
+        animation: slideInLeft 0.6s ease;
+        transition: color 0.2s;
+    }
+
+    .logo-text::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #4CAF50;
+        transition: width 0.3s ease;
+    }
+
+    .logo-text:hover::after {
+        width: 100%;
+    }
+
+    .logo-text:hover {
+        color: #4CAF50;
     }
 
     /* Hide logo text on mobile */
@@ -258,17 +329,6 @@ if (count($name_parts) >= 2) {
     .user-dropdown-menu.show {
         display: block;
         animation: dropdownFadeIn 0.2s ease;
-    }
-
-    @keyframes dropdownFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     .dropdown-header {
@@ -368,6 +428,12 @@ if (count($name_parts) >= 2) {
         font-size: 2rem;
         cursor: pointer;
         color: white;
+        transition: transform 0.3s ease;
+    }
+
+    #hamburger-btn:hover {
+        transform: scale(1.1);
+        color: #4CAF50;
     }
 
     /* Show hamburger button on mobile only */
@@ -442,17 +508,6 @@ if (count($name_parts) >= 2) {
 
     .mobile-menu-item.logout:hover {
         background: #fff5f5;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     /* Ensure all content below navbar has proper margin */
@@ -535,4 +590,4 @@ document.addEventListener('click', function(event) {
         mobileMenu.classList.remove('active');
     }
 });
-</script>
+</script>   
