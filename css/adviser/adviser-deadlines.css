@@ -987,8 +987,8 @@ tr.own-row {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
     z-index: 10000;
     justify-content: center;
     align-items: center;
@@ -1002,61 +1002,376 @@ tr.own-row {
 .modal-content {
     background: white;
     width: 100%;
-    max-width: 500px;
-    border-radius: 32px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    max-width: 700px;
+    max-height: 85vh;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     animation: modalFadeIn 0.3s ease;
-    padding: 30px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal-content h3 {
-    color: var(--primary-dark);
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-    text-align: left;
-}
-
-.modal-buttons {
     display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Modal Header - Green Gradient */
+.modal-header-custom {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
     gap: 12px;
-    justify-content: flex-end;
-    margin-top: 20px;
+    border-bottom: none;
+    flex-shrink: 0;
 }
 
-.modal-buttons button {
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.modal-header-custom .material-symbols-outlined {
+    font-size: 28px;
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 12px;
+}
+
+.modal-header-custom h3 {
+    color: white !important;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    background: transparent !important;
+}
+
+/* Modal Body - Clean white */
+.modal-body-custom {
+    padding: 25px 30px;
+    overflow-y: auto;
+    flex: 1;
+    background: white;
+}
+
+/* Form Groups in Modal */
+.modal-body-custom .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-body-custom .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.modal-body-custom .form-group label .required {
+    color: var(--danger-color);
+    margin-left: 2px;
+}
+
+.modal-body-custom .form-group input,
+.modal-body-custom .form-group select,
+.modal-body-custom .form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
     font-size: 0.95rem;
-    min-width: 100px;
-    border: none;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: 'Poppins', sans-serif;
 }
 
-.modal-buttons button:first-child {
-    background: transparent;
-    border: 2px solid #666;
+.modal-body-custom .form-group input:focus,
+.modal-body-custom .form-group select:focus,
+.modal-body-custom .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.1);
+}
+
+/* Two column layout */
+.modal-body-custom .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 5px;
+}
+
+/* Help text */
+.modal-body-custom .help-text {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Target Field inside modal */
+.modal-body-custom .target-field {
+    margin-top: 15px;
+    padding: 20px;
+    background: #f8fbf8;
+    border-radius: 16px;
+    border: 1px solid #e2efdf;
+}
+
+/* Visibility Section inside modal */
+.modal-body-custom .visibility-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8fbf8;
+    border-radius: 16px;
+    border: 1px solid #e2efdf;
+}
+
+.modal-body-custom .visibility-section h4 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-body-custom .visibility-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.modal-body-custom .visibility-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.modal-body-custom .visibility-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+}
+
+/* Student Selection Box */
+.modal-body-custom .student-selection-box {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 10px;
+    background: white;
+    margin-top: 10px;
+}
+
+.modal-body-custom .student-item {
+    padding: 10px;
+    border-bottom: 1px solid #edf2ed;
+}
+
+.modal-body-custom .student-item:last-child {
+    border-bottom: none;
+}
+
+.modal-body-custom .student-item label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.modal-body-custom .student-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+}
+
+.modal-body-custom .student-info {
+    flex: 1;
+}
+
+.modal-body-custom .student-info strong {
+    font-size: 0.85rem;
+    display: block;
+    color: var(--primary-dark);
+}
+
+.modal-body-custom .student-info small {
+    font-size: 0.7rem;
     color: #666;
 }
 
-.modal-buttons button:first-child:hover {
-    background: #666;
-    color: white;
-    transform: translateY(-2px);
+/* Student Actions */
+.modal-body-custom .student-actions {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
 }
 
-.modal-buttons button:last-child {
+.modal-body-custom .select-all-btn,
+.modal-body-custom .clear-all-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-weight: 500;
+}
+
+.modal-body-custom .select-all-btn {
     background: var(--primary-color);
     color: white;
 }
 
-.modal-buttons button:last-child:hover {
+.modal-body-custom .select-all-btn:hover {
+    background: var(--primary-dark);
+}
+
+.modal-body-custom .clear-all-btn {
+    background: transparent;
+    border: 2px solid #dc3545;
+    color: #dc3545;
+}
+
+.modal-body-custom .clear-all-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Empty Students Message */
+.modal-body-custom .empty-students-message {
+    padding: 20px;
+    text-align: center;
+    background: #f8fbf8;
+    border-radius: 12px;
+}
+
+.modal-body-custom .empty-students-message .material-symbols-outlined {
+    font-size: 36px;
+    color: #ccc;
+}
+
+/* Modal Footer */
+.modal-footer-custom {
+    padding: 20px 30px;
+    border-top: 1px solid #e2efdf;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    background: #fafbfa;
+    flex-shrink: 0;
+}
+
+.modal-footer-custom .btn-cancel {
+    padding: 10px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 2px solid #ccc;
+    color: #666;
+}
+
+.modal-footer-custom .btn-cancel:hover {
+    background: #f0f0f0;
+    border-color: #999;
+    transform: translateY(-2px);
+}
+
+.modal-footer-custom .btn-save {
+    padding: 10px 28px;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-footer-custom .btn-save:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(45, 90, 39, 0.3);
+}
+
+.modal-footer-custom .btn-save .material-symbols-outlined {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.modal-footer-custom .btn-save:hover .material-symbols-outlined {
+    transform: rotate(360deg);
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95%;
+        max-height: 90vh;
+    }
+    
+    .modal-header-custom {
+        padding: 15px 20px;
+    }
+    
+    .modal-header-custom h3 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-header-custom .material-symbols-outlined {
+        font-size: 24px;
+        padding: 6px;
+    }
+    
+    .modal-body-custom {
+        padding: 20px;
+    }
+    
+    .modal-body-custom .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .modal-body-custom .visibility-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-body-custom .student-actions {
+        flex-direction: column;
+    }
+    
+    .modal-body-custom .select-all-btn,
+    .modal-body-custom .clear-all-btn {
+        width: 100%;
+    }
+    
+    .modal-footer-custom {
+        padding: 15px 20px;
+        flex-direction: column;
+    }
+    
+    .modal-footer-custom .btn-cancel,
+    .modal-footer-custom .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* ===== SEARCH AND FILTER STYLES (ADD THIS SECTION) ===== */
@@ -1482,6 +1797,196 @@ td:last-child {
     overflow: visible;
 }
 
+/* ===== EDIT MODAL IMPROVEMENTS ===== */
+
+/* Make modal wider for better form layout */
+.modal-content {
+    max-width: 700px !important;
+    width: 90%;
+}
+
+/* Ensure form groups in modal have proper spacing */
+.modal-body-custom .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-body-custom .form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.modal-body-custom .form-group input,
+.modal-body-custom .form-group select,
+.modal-body-custom .form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+}
+
+.modal-body-custom .form-group input:focus,
+.modal-body-custom .form-group select:focus,
+.modal-body-custom .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(45, 90, 39, 0.1);
+}
+
+/* Two column layout in modal */
+.modal-body-custom .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 5px;
+}
+
+/* Help text in modal */
+.modal-body-custom .help-text {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Target field inside modal */
+.modal-body-custom .target-field {
+    margin-top: 15px;
+    padding: 20px;
+    background: #f8fbf8;
+    border-radius: 16px;
+    border: 1px solid #e2efdf;
+}
+
+/* Visibility section inside modal */
+.modal-body-custom .visibility-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8fbf8;
+    border-radius: 16px;
+    border: 1px solid #e2efdf;
+}
+
+.modal-body-custom .visibility-section h4 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+}
+
+.modal-body-custom .visibility-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.modal-body-custom .visibility-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Student selection box inside modal */
+.modal-body-custom .student-selection-box {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 10px;
+    background: white;
+}
+
+.modal-body-custom .student-item {
+    padding: 10px;
+    border-bottom: 1px solid #edf2ed;
+}
+
+.modal-body-custom .student-item:last-child {
+    border-bottom: none;
+}
+
+.modal-body-custom .student-item label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.modal-body-custom .student-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.modal-body-custom .student-info strong {
+    font-size: 0.9rem;
+    display: block;
+}
+
+.modal-body-custom .student-info small {
+    font-size: 0.7rem;
+    color: #666;
+}
+
+/* Student actions inside modal */
+.modal-body-custom .student-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.modal-body-custom .select-all-btn,
+.modal-body-custom .clear-all-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 30px;
+}
+
+/* Empty students message in modal */
+.modal-body-custom .empty-students-message {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Required field star */
+.modal-body-custom .required {
+    color: var(--danger-color);
+    margin-left: 2px;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95% !important;
+    }
+    
+    .modal-body-custom .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .modal-body-custom .visibility-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-body-custom .student-actions {
+        flex-direction: column;
+    }
+    
+    .modal-body-custom .select-all-btn,
+    .modal-body-custom .clear-all-btn {
+        width: 100%;
+    }
+}
+
 /* ===== RESPONSIVE DESIGN (EXISTING) ===== */
 @media (max-width: 1024px) {
     .stats-grid {
@@ -1587,10 +2092,6 @@ td:last-child {
     .btn-toggle {
         width: 100%;
         justify-content: center;
-    }
-    
-    .modal-content {
-        padding: 20px;
     }
     
     .modal-buttons {

@@ -866,7 +866,7 @@ $role = $_SESSION['role'] ?? 'user';
                 <span class="material-symbols-outlined">edit_calendar</span>
                 <h3>Edit Deadline</h3>
             </div>
-            
+                    
             <div class="modal-body-custom">
                 <form method="POST" id="editDeadlineForm">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
@@ -880,7 +880,7 @@ $role = $_SESSION['role'] ?? 'user';
 
                     <div class="form-group">
                         <label>Category</label>
-                        <input type="text" name="category" id="editCategory">
+                        <input type="text" name="category" id="editCategory" value="General">
                     </div>
 
                     <div class="form-group">
@@ -896,15 +896,56 @@ $role = $_SESSION['role'] ?? 'user';
                         <div class="form-group">
                             <label>Time</label>
                             <input type="time" name="deadline_time" id="editDeadlineTime">
+                            <small class="help-text">Default: 11:59 PM</small>
                         </div>
                     </div>
 
+                    <!-- Send Notifications To -->
+                    <div class="form-group">
+                        <label>Send Notifications To</label>
+                        <select name="target_type" id="editTargetType" onchange="toggleEditTargetFields()">
+                            <option value="none">Don't send notifications</option>
+                            <option value="my_students">All my advisees</option>
+                            <option value="specific_students">Specific students</option>
+                        </select>
+                        <small class="help-text">Choose who will receive email notifications</small>
+                    </div>
+
+                    <div id="editStudentsField" class="target-field" style="display: none;">
+                        <label>Select Students to Notify</label>
+                        <?php if(empty($students)): ?>
+                            <div class="empty-students-message">
+                                <span class="material-symbols-outlined">info</span>
+                                <p>You don't have any advisees yet.</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="student-selection-box" style="max-height: 200px;">
+                                <?php foreach($students as $student): ?>
+                                    <div class="student-item">
+                                        <label>
+                                            <input type="checkbox" name="target_students[]" value="<?php echo $student['id']; ?>" class="edit-target-checkbox">
+                                            <div class="student-info">
+                                                <strong><?php echo htmlspecialchars($student['full_name']); ?></strong>
+                                                <small>ID: <?php echo htmlspecialchars($student['id_number']); ?></small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="student-actions" style="margin-top: 10px;">
+                                <button type="button" onclick="selectAllEditTarget()" class="select-all-btn" style="padding: 6px 12px; font-size: 0.8rem;">Select All</button>
+                                <button type="button" onclick="clearAllEditTarget()" class="clear-all-btn" style="padding: 6px 12px; font-size: 0.8rem;">Clear All</button>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Who Can See This Deadline -->
                     <div class="visibility-section" style="margin-top: 15px;">
                         <h4 style="margin-bottom: 15px;">
                             <span class="material-symbols-outlined">visibility</span>
                             Who Can See This Deadline?
                         </h4>
-                        
+                                
                         <div class="visibility-options">
                             <label class="visibility-option">
                                 <input type="radio" name="visibility_type" value="all" id="editVisibilityAll" onchange="toggleEditVisibilityField()">
@@ -918,7 +959,7 @@ $role = $_SESSION['role'] ?? 'user';
 
                         <div class="form-group target-field" id="editVisibilityStudentsField" style="display: none;">
                             <label>Select Students Who Can See This Deadline</label>
-                            
+                                
                             <?php if(empty($students)): ?>
                                 <div class="empty-students-message">
                                     <span class="material-symbols-outlined">info</span>
@@ -947,7 +988,7 @@ $role = $_SESSION['role'] ?? 'user';
                     </div>
                 </form>
             </div>
-            
+                                    
             <div class="modal-footer-custom">
                 <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
                 <button type="submit" class="btn-save" form="editDeadlineForm" name="edit_deadline">
@@ -1329,6 +1370,7 @@ $role = $_SESSION['role'] ?? 'user';
                 visibilitySearchInput.addEventListener('keyup', filterVisibilityStudents);
             }
         });
+
     </script>
 </body>
 </html>
