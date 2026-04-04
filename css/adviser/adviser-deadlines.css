@@ -1803,6 +1803,7 @@ td:last-child {
 .modal-content {
     max-width: 700px !important;
     width: 90%;
+    border-radius: 35px;
 }
 
 /* Ensure form groups in modal have proper spacing */

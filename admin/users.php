@@ -538,12 +538,13 @@ $role = $_SESSION['role'] ?? 'user';
                 <span class="material-symbols-outlined">person_edit</span>
                 <h3>Edit User</h3>
             </div>
-        
+                                                
             <!-- Custom Body -->
             <div class="modal-body-custom">
-                <form method="POST" id="editForm">
+                <form method="POST" id="editUserForm">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <input type="hidden" name="user_id" id="editUserId">
+                    <input type="hidden" name="edit_user" value="1">  <!-- ADD THIS LINE -->
                                                 
                     <div class="form-group">
                         <label>Full Name <span class="required">*</span></label>
@@ -589,18 +590,17 @@ $role = $_SESSION['role'] ?? 'user';
                     </div>
                 </form>
             </div>
-                                    
+
             <!-- Custom Footer -->
             <div class="modal-footer-custom">
                 <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-                <button type="submit" class="btn-save" form="editForm">
+                <button type="submit" class="btn-save" form="editUserForm">
                     <span class="material-symbols-outlined">save</span>
                     Save Changes
                 </button>
             </div>
         </div>
     </div>
-</div>
 
     <script>
         // Close all dropdowns when clicking outside
@@ -673,6 +673,10 @@ $role = $_SESSION['role'] ?? 'user';
 
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
+            // Reset the form
+            document.getElementById('editUserForm').reset();
+            // Clear password field
+            document.getElementById('editPassword').value = '';
         }
 
         window.onclick = function(event) {

@@ -330,18 +330,19 @@ $role = $_SESSION['role'] ?? 'user';
                 <span class="material-symbols-outlined">edit_note</span>
                 <h3>Edit Category</h3>
             </div>
-            
+                                
             <div class="modal-body-custom">
-                <form method="POST" id="editForm">
+                <form method="POST" id="editCategoryForm">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <input type="hidden" name="category_id" id="editCategoryId">
-                                    
+                    <input type="hidden" name="edit_category" value="1">
+
                     <div class="form-group">
                         <label>Category Name <span class="required">*</span></label>
                         <input type="text" name="new_name" id="editCategoryName" maxlength="100" placeholder="Category name" required>
                         <div class="char-counter"><span id="editCharCount">0</span>/100 characters</div>
                     </div>
-                
+                                
                     <div class="form-group">
                         <label>Category Color</label>
                         <div class="color-input-wrapper">
@@ -352,10 +353,10 @@ $role = $_SESSION['role'] ?? 'user';
                     </div>
                 </form>
             </div>
-            
+                                
             <div class="modal-footer-custom">
                 <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-                <button type="submit" class="btn-save" form="editForm">
+                <button type="submit" class="btn-save" form="editCategoryForm">
                     <span class="material-symbols-outlined">save</span>
                     Save Changes
                 </button>
@@ -492,11 +493,13 @@ $role = $_SESSION['role'] ?? 'user';
             document.getElementById('editColorPreview').style.backgroundColor = color;
             document.getElementById('editCharCount').textContent = name.length;
             document.getElementById('editModal').classList.add('active');
-            closeDropdowns(); // Close any open dropdowns
+            closeDropdowns();
         }
 
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
+            // Optional: reset form
+            document.getElementById('editCategoryForm').reset();
         }
 
         function clearAddForm() {

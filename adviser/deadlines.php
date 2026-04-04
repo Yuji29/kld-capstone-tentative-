@@ -198,6 +198,14 @@ if(isset($_POST['edit_deadline'])) {
         $deadline_date = $_POST['deadline_date'] ?? '';
         $deadline_time = $_POST['deadline_time'] ?? '23:59:00';
         $category = htmlspecialchars(trim($_POST['category'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+        
+        $target_type = $_POST['target_type'] ?? 'none';
+        $target_students = null;
+        if(isset($_POST['target_students']) && is_array($_POST['target_students'])) {
+            $valid_students = validateStudentIds($_POST['target_students']);
+            $target_students = !empty($valid_students) ? implode(',', $valid_students) : null;
+        }
+        
         $visibility_type = $_POST['visibility_type'] ?? 'all';
         
         $visible_to_students = null;
@@ -218,13 +226,56 @@ if(isset($_POST['edit_deadline'])) {
                 if($deadline && $deadline['created_by'] == $user_id) {
                     $update = $db->prepare("UPDATE deadlines SET 
                         title = ?, description = ?, deadline_date = ?, deadline_time = ?, 
-                        category = ?, visibility_type = ?, visible_to_students = ?
+                        category = ?, target_type = ?, target_ids = ?,
+                        visibility_type = ?, visible_to_students = ?
                         WHERE id = ?");
                     
                     if($update->execute([$title, $description, $deadline_date, $deadline_time, 
-                        $category, $visibility_type, $visible_to_students, $deadline_id])) {
-                        $_SESSION['flash_message'] = "Deadline updated successfully!";
+                        $category, $target_type, $target_students, 
+                        $visibility_type, $visible_to_students, $deadline_id])) {
+                        
+                        // ============ SEND EMAIL NOTIFICATIONS FOR EDITED DEADLINE ============
+                        $notification_count = 0;
+                        $deadline_datetime = date('F j, Y g:i A', strtotime($deadline_date . ' ' . $deadline_time));
+                        $users_to_notify = [];
+                        
+                        // Get users based on target type
+                        if($target_type === 'my_students') {
+                            if(!empty($students)) {
+                                $student_ids = array_column($students, 'id');
+                                $placeholders = implode(',', array_fill(0, count($student_ids), '?'));
+                                $notify_query = "SELECT email, full_name FROM users WHERE id IN ($placeholders) AND email IS NOT NULL AND email != ''";
+                                $notify_stmt = $db->prepare($notify_query);
+                                $notify_stmt->execute($student_ids);
+                                $users_to_notify = $notify_stmt->fetchAll(PDO::FETCH_ASSOC);
+                            }
+                        }
+                        elseif($target_type === 'specific_students' && $target_students) {
+                            $ids = explode(',', $target_students);
+                            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                            $notify_stmt = $db->prepare("SELECT email, full_name FROM users WHERE id IN ($placeholders) AND email IS NOT NULL AND email != ''");
+                            $notify_stmt->execute($ids);
+                            $users_to_notify = $notify_stmt->fetchAll(PDO::FETCH_ASSOC);
+                        }
+                        
+                        // Send emails
+                        foreach($users_to_notify as $user) {
+                            if(!empty($user['email']) && filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+                                $email_sent = sendDeadlineNotification(
+                                    $user['email'],
+                                    $user['full_name'],
+                                    $title,
+                                    $deadline_datetime,
+                                    $description,
+                                    $_SESSION['full_name']
+                                );
+                                if($email_sent) $notification_count++;
+                            }
+                        }
+                        
+                        $_SESSION['flash_message'] = "Deadline updated successfully! " . $notification_count . " notification(s) sent.";
                         $_SESSION['flash_type'] = "success";
+                        
                     } else {
                         $_SESSION['flash_message'] = "Failed to update deadline.";
                         $_SESSION['flash_type'] = "error";
@@ -1039,34 +1090,32 @@ $role = $_SESSION['role'] ?? 'user';
             }
         });
 
-        // ========== EDIT MODAL FUNCTIONS ==========
-        function openEditModal(deadline) {
-            document.getElementById('editDeadlineId').value = deadline.id;
-            document.getElementById('editTitle').value = deadline.title;
-            document.getElementById('editCategory').value = deadline.category || 'General';
-            document.getElementById('editDescription').value = deadline.description || '';
-            document.getElementById('editDeadlineDate').value = deadline.deadline_date;
-            document.getElementById('editDeadlineTime').value = deadline.deadline_time || '23:59';
-            
-            // Set visibility type
-            if (deadline.visibility_type === 'specific_students') {
-                document.getElementById('editVisibilitySpecific').checked = true;
-                document.getElementById('editVisibilityStudentsField').style.display = 'block';
-                
-                // Check the checkboxes for visible students
-                const visibleIds = deadline.visible_to_students ? deadline.visible_to_students.split(',') : [];
-                const checkboxes = document.querySelectorAll('.edit-visibility-checkbox');
-                checkboxes.forEach(cb => {
-                    cb.checked = visibleIds.includes(cb.value);
-                });
+        // ========== EDIT MODAL TARGET FUNCTIONS ==========
+        function toggleEditTargetFields() {
+            const targetType = document.getElementById('editTargetType').value;
+            const studentsField = document.getElementById('editStudentsField');
+                                    
+            if(targetType === 'specific_students') {
+                studentsField.style.display = 'block';
             } else {
-                document.getElementById('editVisibilityAll').checked = true;
-                document.getElementById('editVisibilityStudentsField').style.display = 'none';
+                studentsField.style.display = 'none';
             }
-            
-            document.getElementById('editModal').classList.add('active');
         }
-        
+                                    
+        function selectAllEditTarget() {
+            const checkboxes = document.querySelectorAll('.edit-target-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+            });
+        }
+                                    
+        function clearAllEditTarget() {
+            const checkboxes = document.querySelectorAll('.edit-target-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+        }
+                                    
         function toggleEditVisibilityField() {
             const visibilityField = document.getElementById('editVisibilityStudentsField');
             if (document.getElementById('editVisibilitySpecific').checked) {
@@ -1075,23 +1124,85 @@ $role = $_SESSION['role'] ?? 'user';
                 visibilityField.style.display = 'none';
             }
         }
-        
+                                    
         function selectAllEditVisibility() {
             const checkboxes = document.querySelectorAll('.edit-visibility-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = true;
             });
         }
-        
+                                    
         function clearAllEditVisibility() {
             const checkboxes = document.querySelectorAll('.edit-visibility-checkbox');
             checkboxes.forEach(cb => {
                 cb.checked = false;
             });
         }
-        
+
+        // ========== EDIT MODAL FUNCTIONS ==========
+        function openEditModal(deadline) {
+            document.getElementById('editDeadlineId').value = deadline.id;
+            document.getElementById('editTitle').value = deadline.title;
+            document.getElementById('editCategory').value = deadline.category || 'General';
+            document.getElementById('editDescription').value = deadline.description || '';
+            document.getElementById('editDeadlineDate').value = deadline.deadline_date;
+            document.getElementById('editDeadlineTime').value = deadline.deadline_time || '23:59';
+
+            // Set target type
+            const targetType = document.getElementById('editTargetType');
+            const targetTypeValue = deadline.target_type || 'none';
+            targetType.value = targetTypeValue;
+
+            // ADD THIS LINE HERE - after setting target type value
+            toggleEditTargetFields();
+
+            // Handle target students field
+            const studentsField = document.getElementById('editStudentsField');
+            if (targetTypeValue === 'specific_students') {
+                studentsField.style.display = 'block';
+                // Check target students
+                const targetIds = deadline.target_ids ? deadline.target_ids.split(',') : [];
+                const targetCheckboxes = document.querySelectorAll('.edit-target-checkbox');
+                targetCheckboxes.forEach(cb => {
+                    cb.checked = targetIds.includes(cb.value);
+                });
+            } else {
+                studentsField.style.display = 'none';
+            }
+
+            // Set visibility type
+            if (deadline.visibility_type === 'specific_students') {
+                document.getElementById('editVisibilitySpecific').checked = true;
+                document.getElementById('editVisibilityStudentsField').style.display = 'block';
+
+                // ADD THIS LINE HERE - after setting visibility radio
+                toggleEditVisibilityField();
+
+                // Check the checkboxes for visible students
+                const visibleIds = deadline.visible_to_students ? deadline.visible_to_students.split(',') : [];
+                const visibleCheckboxes = document.querySelectorAll('.edit-visibility-checkbox');
+                visibleCheckboxes.forEach(cb => {
+                    cb.checked = visibleIds.includes(cb.value);
+                });
+            } else {
+                document.getElementById('editVisibilityAll').checked = true;
+                document.getElementById('editVisibilityStudentsField').style.display = 'none';
+                toggleEditVisibilityField();
+            }
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
         function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
+            const modal = document.getElementById('editModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            // Reset form
+            const form = document.getElementById('editDeadlineForm');
+            if (form) {
+                form.reset();
+            }
         }
 
         // Student search and selection functions
