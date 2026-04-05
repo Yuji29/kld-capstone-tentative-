@@ -226,8 +226,15 @@ try {
             <h2>Ready to get started?</h2>
             <p>Join <?php echo number_format($total_users); ?>+ users already using KLD Capstone Tracker</p>
             <div class="cta-buttons">
-                <a href="auth/register.php" class="btn-cta-primary">Create Account</a>
-                <a href="contact.php" class="btn-cta-secondary">Contact Us</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <!-- Logged in user - show Dashboard button -->
+                    <a href="dashboard.php" class="btn-cta-primary">Go to Dashboard</a>
+                    <a href="logout.php" class="btn-cta-secondary">Logout</a>
+                <?php else: ?>
+                    <!-- Guest user - show Create Account and Contact Us buttons -->
+                    <a href="auth/register.php" class="btn-cta-primary">Create Account</a>
+                    <a href="contact.php" class="btn-cta-secondary">Contact Us</a>
+                <?php endif; ?>
             </div>
         </div>
     </section>
